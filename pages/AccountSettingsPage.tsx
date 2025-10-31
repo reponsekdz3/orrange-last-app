@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
-import { USER_TICKETS } from '../constants';
+import { USER_TICKETS, OPERATORS } from '../constants';
 
-type SettingsPage = 'DASHBOARD' | 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET' | 'SECURITY';
+type SettingsPage = 'DASHBOARD' | 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET' | 'SECURITY' | 'PREFERENCES';
 
 const SettingsNavItem: React.FC<{label: string; page: SettingsPage; activePage: SettingsPage; setPage: (page: SettingsPage) => void;}> = 
 ({ label, page, activePage, setPage }) => (
@@ -174,6 +174,41 @@ export const AccountSettingsPage: React.FC = () => {
                         </form>
                     </div>
                 );
+            case 'PREFERENCES':
+                return (
+                     <div>
+                        <h3 className="font-bold text-xl mb-6 text-gray-800">Travel Preferences</h3>
+                        <p className="text-gray-500 mb-6">Save your favorite routes and operators for faster bookings.</p>
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-semibold text-gray-700 mb-2">Favorite Routes</h4>
+                                {user.preferences.favoriteRoutes.map((route, index) => (
+                                    <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between items-center mb-2">
+                                        <p>{route.from} &rarr; {route.to}</p>
+                                        <button className="text-sm text-red-600">Remove</button>
+                                    </div>
+                                ))}
+                                <button className="text-sm font-semibold text-orange-600 mt-2">+ Add New Favorite Route</button>
+                            </div>
+                             <div>
+                                <h4 className="font-semibold text-gray-700 mb-2">Preferred Operators</h4>
+                                {user.preferences.preferredOperators.map((opId, index) => {
+                                    const operator = OPERATORS.find(op => op.id === opId);
+                                    return (
+                                        <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between items-center mb-2">
+                                            <p>{operator?.name}</p>
+                                            <button className="text-sm text-red-600">Remove</button>
+                                        </div>
+                                    );
+                                })}
+                                <button className="text-sm font-semibold text-orange-600 mt-2">+ Add Preferred Operator</button>
+                            </div>
+                        </div>
+                         <div className="pt-6 mt-4 border-t">
+                            <button className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Save Preferences</button>
+                        </div>
+                    </div>
+                );
             case 'SECURITY':
                 return (
                     <div>
@@ -277,6 +312,7 @@ export const AccountSettingsPage: React.FC = () => {
                 <aside className="lg:col-span-1 space-y-2 sticky top-28">
                     <SettingsNavItem label="Dashboard" page="DASHBOARD" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Personal Details" page="PERSONAL" activePage={activePage} setPage={setActivePage} />
+                    <SettingsNavItem label="Preferences" page="PREFERENCES" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Security & Login" page="SECURITY" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Change Password" page="PASSWORD" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Notifications" page="NOTIFICATIONS" activePage={activePage} setPage={setActivePage} />

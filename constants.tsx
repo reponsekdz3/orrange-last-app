@@ -1,6 +1,6 @@
 import React from 'react';
 // FIX: Import User type to be used in MOCK_USERS
-import { Operator, BusRoute, Ticket, Bus, Schedule, User } from './types';
+import { Operator, BusRoute, Ticket, Bus, Schedule, User, Driver } from './types';
 
 const VolcanoExpressLogo = () => (
   <div className="w-12 h-12 flex items-center justify-center bg-red-600 text-white font-bold rounded-lg text-sm">V.E</div>
@@ -219,7 +219,8 @@ export const BUS_ROUTES: BusRoute[] = [
 export const USER_TICKETS: Ticket[] = [
     { id: 'T1', route: BUS_ROUTES[0], date: '2024-10-25', status: 'ACTIVE', seats: ['A3', 'A4'] },
     { id: 'T2', route: BUS_ROUTES[1], date: '2024-10-28', status: 'ACTIVE', seats: ['B1'] },
-    { id: 'T3', route: BUS_ROUTES[2], date: '2024-09-15', status: 'COMPLETED', seats: ['C2'] },
+    { id: 'T3', route: BUS_ROUTES[2], date: '2024-09-15', status: 'COMPLETED', seats: ['C2'], rating: 4 },
+    { id: 'T4', route: BUS_ROUTES[5], date: '2024-08-22', status: 'COMPLETED', seats: ['D1', 'D2'] },
 ];
 
 export const OPERATOR_BUSES: Bus[] = [
@@ -228,6 +229,14 @@ export const OPERATOR_BUSES: Bus[] = [
     { id: 'B3', plateNumber: 'RAC 789 D', model: 'Toyota Coaster', capacity: 28, status: 'Maintenance' },
     { id: 'B4', plateNumber: 'RAD 101 E', model: 'Yutong ZK6122H9', capacity: 49, status: 'Inactive' },
     { id: 'B5', plateNumber: 'RAE 202 F', model: 'Toyota Coaster', capacity: 28, status: 'Active' },
+];
+
+export const OPERATOR_DRIVERS: Driver[] = [
+    { id: 'D1', name: 'Jean Mugisha', contact: '0788123456', licenseNumber: 'DL12345RW', assignedBusId: 'B1', status: 'Active' },
+    { id: 'D2', name: 'Aline Uwase', contact: '0788654321', licenseNumber: 'DL54321RW', assignedBusId: 'B2', status: 'Active' },
+    { id: 'D3', name: 'Emmanuel Nsenga', contact: '0788987654', licenseNumber: 'DL98765RW', assignedBusId: null, status: 'On Leave' },
+    { id: 'D4', name: 'Grace Iradukunda', contact: '0788456789', licenseNumber: 'DL45678RW', assignedBusId: 'B5', status: 'Active' },
+    { id: 'D5', name: 'Olivier Kwizera', contact: '0788321987', licenseNumber: 'DL32198RW', assignedBusId: null, status: 'Inactive' },
 ];
 
 export const OPERATOR_SCHEDULES: Schedule[] = [
@@ -258,6 +267,13 @@ export const MOCK_USERS: User[] = [
     recentActivity: [
       { timestamp: new Date(Date.now() - 86400000).toISOString(), device: 'Chrome on macOS', location: 'Kigali, Rwanda' },
     ],
+    preferences: {
+        favoriteRoutes: [
+            { from: 'Kigali', to: 'Rubavu' },
+            { from: 'Kigali', to: 'Huye' },
+        ],
+        preferredOperators: ['volcano', 'ritco'],
+    },
   },
   {
     id: 'user_2',
@@ -272,5 +288,9 @@ export const MOCK_USERS: User[] = [
     recentActivity: [
       { timestamp: new Date().toISOString(), device: 'Chrome on Windows', location: 'Kigali, Rwanda' },
     ],
+    preferences: {
+        favoriteRoutes: [],
+        preferredOperators: [],
+    },
   },
 ];

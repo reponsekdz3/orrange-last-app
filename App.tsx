@@ -24,6 +24,7 @@ import { OperatorDashboard } from './pages/OperatorDashboard';
 import { OperatorSidebar } from './components/OperatorSidebar';
 import { OperatorRoutesPage } from './pages/operator/OperatorRoutesPage';
 import { OperatorBusesPage } from './pages/operator/OperatorBusesPage';
+import { OperatorDriversPage } from './pages/operator/OperatorDriversPage';
 import { OperatorSchedulesPage } from './pages/operator/OperatorSchedulesPage';
 import { OperatorReportsPage } from './pages/operator/OperatorReportsPage';
 import { OperatorSettingsPage } from './pages/operator/OperatorSettingsPage';
@@ -98,7 +99,11 @@ const App: React.FC = () => {
             timestamp: new Date().toISOString(),
             device: 'Web Browser',
             location: 'Kigali, Rwanda (estimate)'
-        }]
+        }],
+        preferences: {
+            favoriteRoutes: [],
+            preferredOperators: [],
+        }
     };
     setUsersDB([...usersDB, newUser]);
     const { password: _, ...userToStore } = newUser;
@@ -141,6 +146,7 @@ const App: React.FC = () => {
     'OPERATOR_DASHBOARD', 
     'OPERATOR_ROUTES', 
     'OPERATOR_BUSES', 
+    'OPERATOR_DRIVERS',
     'OPERATOR_SCHEDULES',
     'OPERATOR_REPORTS',
     'OPERATOR_SETTINGS'
@@ -169,6 +175,7 @@ const App: React.FC = () => {
       case 'OPERATOR_DASHBOARD': return <OperatorDashboard />;
       case 'OPERATOR_ROUTES': return <OperatorRoutesPage />;
       case 'OPERATOR_BUSES': return <OperatorBusesPage />;
+      case 'OPERATOR_DRIVERS': return <OperatorDriversPage />;
       case 'OPERATOR_SCHEDULES': return <OperatorSchedulesPage />;
       case 'OPERATOR_REPORTS': return <OperatorReportsPage />;
       case 'OPERATOR_SETTINGS': return <OperatorSettingsPage />;

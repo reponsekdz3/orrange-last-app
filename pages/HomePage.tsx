@@ -155,8 +155,33 @@ export const HomePage: React.FC = () => {
                     </div>
                 </div>
             </div>
-
+            
             <section className="py-16">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">How It Works</h2>
+                    <p className="text-gray-600 mb-2 max-w-2xl mx-auto">Booking your bus ticket is as easy as 1-2-3. Follow these simple steps to get on your way.</p>
+                    <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
+                    <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        <div className="text-center">
+                            <div className="mx-auto bg-orange-100 text-orange-600 w-20 h-20 rounded-full flex items-center justify-center mb-4"><span className="font-bold text-2xl">1</span></div>
+                            <h3 className="font-bold text-lg text-gray-800 mb-2">Search Your Route</h3>
+                            <p className="text-gray-600 text-sm">Enter your departure, destination, and travel date to find available buses.</p>
+                        </div>
+                         <div className="text-center">
+                            <div className="mx-auto bg-orange-100 text-orange-600 w-20 h-20 rounded-full flex items-center justify-center mb-4"><span className="font-bold text-2xl">2</span></div>
+                            <h3 className="font-bold text-lg text-gray-800 mb-2">Select & Pay</h3>
+                            <p className="text-gray-600 text-sm">Choose your bus, select your preferred seat, and pay securely online.</p>
+                        </div>
+                         <div className="text-center">
+                            <div className="mx-auto bg-orange-100 text-orange-600 w-20 h-20 rounded-full flex items-center justify-center mb-4"><span className="font-bold text-2xl">3</span></div>
+                            <h3 className="font-bold text-lg text-gray-800 mb-2">Travel with Ease</h3>
+                            <p className="text-gray-600 text-sm">Receive your e-ticket instantly and get ready for a comfortable journey.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16 bg-orange-50/50">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Why Choose Bus Rwanda?</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
@@ -174,7 +199,7 @@ export const HomePage: React.FC = () => {
                 </div>
             </section>
 
-            <section className="py-16 bg-orange-50/50">
+            <section className="py-16">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Popular Destinations</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
@@ -182,6 +207,23 @@ export const HomePage: React.FC = () => {
                        <DestinationCard imageUrl="https://images.unsplash.com/photo-1605640228352-a3f7a264e104?q=80&w=2070&auto=format&fit=crop" name="Rubavu" description="Lakeside relaxation" />
                        <DestinationCard imageUrl="https://images.unsplash.com/photo-1590425499238-0ed4b1b4898b?q=80&w=1974&auto=format&fit=crop" name="Musanze" description="Gateway to the gorillas" />
                        <DestinationCard imageUrl="https://upload.wikimedia.org/wikipedia/commons/2/2c/Huye_%28Butare%29%2C_Rwanda._%2834015611684%29.jpg" name="Huye" description="The heart of culture" />
+                    </div>
+                </div>
+            </section>
+            
+            <section className="py-16 bg-orange-50/50">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">What Our Riders Say</h2>
+                    <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
+                     <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div className="bg-white p-6 rounded-2xl shadow-md">
+                            <p className="text-gray-600 italic mb-4">"Booking with Bus Rwanda was incredibly easy and fast. The bus was clean, comfortable, and arrived on time. Highly recommended for traveling across the country!"</p>
+                            <p className="font-bold text-gray-800">- Aline U.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl shadow-md">
+                           <p className="text-gray-600 italic mb-4">"I use this app for all my business trips from Kigali to Musanze. The wallet feature is a lifesaver, and the service is always reliable. Excellent app!"</p>
+                            <p className="font-bold text-gray-800">- Mark K.</p>
+                        </div>
                     </div>
                 </div>
             </section>

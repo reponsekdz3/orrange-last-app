@@ -20,6 +20,7 @@ export type Page =
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
   | 'OPERATOR_BUSES'
+  | 'OPERATOR_DRIVERS'
   | 'OPERATOR_SCHEDULES'
   | 'OPERATOR_REPORTS'
   | 'OPERATOR_SETTINGS';
@@ -43,6 +44,11 @@ export type UserActivity = {
   location: string;
 };
 
+export type UserPreferences = {
+    favoriteRoutes: { from: string; to: string }[];
+    preferredOperators: string[]; // Array of operator IDs
+};
+
 export type User = {
   id: string;
   name: string;
@@ -54,6 +60,7 @@ export type User = {
   paymentMethods: PaymentMethod[];
   walletBalance: number;
   recentActivity: UserActivity[];
+  preferences: UserPreferences;
 };
 
 export type Operator = {
@@ -108,6 +115,15 @@ export type Bus = {
   model: string;
   capacity: number;
   status: 'Active' | 'Maintenance' | 'Inactive';
+};
+
+export type Driver = {
+    id: string;
+    name: string;
+    contact: string;
+    licenseNumber: string;
+    assignedBusId: string | null;
+    status: 'Active' | 'On Leave' | 'Inactive';
 };
 
 export type Schedule = {

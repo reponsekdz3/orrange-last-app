@@ -90,13 +90,23 @@ export const MyTicketsPage: React.FC = () => {
     const upcomingTickets = tickets.filter(t => t.status === 'ACTIVE');
     const pastTickets = tickets.filter(t => {
         if (t.status !== 'COMPLETED') return false;
-        if (!startDate || !endDate) return true;
-        return t.date >= startDate && t.date <= endDate;
+        if (!startDate && !endDate) return true;
+        const ticketDate = new Date(t.date);
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
+        if (start && ticketDate < start) return false;
+        if (end && ticketDate > end) return false;
+        return true;
     });
 
     const handleRateTicket = (ticketId: string, rating: number) => {
         setTickets(tickets.map(t => t.id === ticketId ? { ...t, rating } : t));
     };
+    
+    const clearDates = () => {
+        setStartDate('');
+        setEndDate('');
+    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -117,16 +127,19 @@ export const MyTicketsPage: React.FC = () => {
                     </div>
 
                     {activeTab === 'past' && (
-                        <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex items-center gap-4">
+                        <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap items-center gap-4">
                             <label className="font-semibold text-sm">Filter by date:</label>
                             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 border rounded-lg bg-gray-50 text-sm"/>
                             <span className="text-gray-500">-</span>
                             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 border rounded-lg bg-gray-50 text-sm"/>
+                            <button onClick={clearDates} className="text-sm font-semibold text-orange-600 hover:underline ml-auto">Clear</button>
                         </div>
                     )}
 
                      <div className="space-y-6">
                         {(activeTab === 'upcoming' ? upcomingTickets : pastTickets).map(ticket => <TicketCard key={ticket.id} ticket={ticket} onRateClick={setRatingTicket} />)}
+                        {(activeTab === 'upcoming' && upcomingTickets.length === 0) && <p className="text-gray-500">You have no upcoming tickets.</p>}
+                        {(activeTab === 'past' && pastTickets.length === 0) && <p className="text-gray-500">No past journeys found for the selected date range.</p>}
                     </div>
                 </div>
                 <div className="space-y-6">
