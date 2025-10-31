@@ -1,13 +1,60 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
+import { OPERATORS } from '../constants';
 
-const FeatureCard: React.FC<{ title: string; description: string; icon: React.ReactNode }> = ({ title, description, icon }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-md text-center transform hover:-translate-y-2 transition-transform duration-300">
+const FeatureModal: React.FC<{
+  content: { title: string; description: string; icon: React.ReactNode };
+  onClose: () => void;
+}> = ({ content, onClose }) => (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center">
+                    <div className="mx-auto bg-orange-100 text-orange-600 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+                        {content.icon}
+                    </div>
+                    <h3 className="font-bold text-2xl text-gray-800">{content.title}</h3>
+                </div>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <p className="text-gray-600">{content.description}</p>
+        </div>
+        <style>{`
+            @keyframes fade-in {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        `}</style>
+    </div>
+);
+
+const FeatureCard: React.FC<{
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    onLearnMore: () => void;
+}> = ({ title, description, icon, onLearnMore }) => (
+    <div className="bg-white p-6 rounded-2xl shadow-md text-center transform hover:-translate-y-2 transition-transform duration-300 flex flex-col">
         <div className="mx-auto bg-orange-100 text-orange-600 w-16 h-16 rounded-full flex items-center justify-center mb-4">
             {icon}
         </div>
         <h3 className="font-bold text-lg text-gray-800 mb-2">{title}</h3>
-        <p className="text-gray-600 text-sm">{description}</p>
+        <p className="text-gray-600 text-sm flex-grow mb-4">{description}</p>
+        <button onClick={onLearnMore} className="mt-auto px-4 py-2 text-sm font-semibold text-orange-600 bg-orange-100 rounded-full hover:bg-orange-200 transition-colors">
+            Learn More
+        </button>
+    </div>
+);
+
+const DestinationCard: React.FC<{ imageUrl: string; name: string; description: string }> = ({ imageUrl, name, description }) => (
+    <div className="group rounded-2xl overflow-hidden shadow-lg relative transform hover:scale-105 transition-transform duration-300">
+        <img src={imageUrl} alt={name} className="w-full h-80 object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 p-6">
+            <h3 className="text-2xl font-bold text-white mb-1">{name}</h3>
+            <p className="text-orange-200 text-sm">{description}</p>
+        </div>
     </div>
 );
 
@@ -21,8 +68,30 @@ export const HomePage: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [loopNum, setLoopNum] = useState(0);
     const [typingSpeed, setTypingSpeed] = useState(150);
+    const [modalContent, setModalContent] = useState<{ title: string; description: string; icon: React.ReactNode } | null>(null);
 
     const headlines = React.useMemo(() => ["Your Journey, Simplified.", "Discover Rwanda by Bus.", "Safe & Reliable Travel."], []);
+    
+    const features = [
+        { 
+            title: "Easy Booking", 
+            description: "Find and book your bus ticket in just a few clicks.", 
+            longDescription: "Our streamlined booking process is designed for your convenience. From the homepage, enter your departure and destination, choose from a list of trusted operators, select your preferred seat on our interactive map, and pay securely. Your e-ticket is generated instantly. No queues, no hassle.",
+            icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+        },
+         { 
+            title: "Secure Payments", 
+            description: "Pay securely with credit card, mobile money, or your in-app wallet.", 
+            longDescription: "We prioritize your security. Our payment gateway is encrypted and supports multiple payment methods, including all major credit cards, MTN Mobile Money, and Airtel Money. For added convenience, top up your in-app wallet for lightning-fast, one-click payments on future bookings.",
+            icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+        },
+         { 
+            title: "24/7 Support", 
+            description: "Our dedicated team is ready to help you anytime, anywhere.", 
+            longDescription: "Travel with peace of mind knowing our support team is available around the clock. Whether you have a question about your booking, need help with a payment, or require assistance during your journey, you can reach us via our in-app help center, email, or our 24/7 hotline. We're here for you every step of the way.",
+            icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        }
+    ];
 
     useEffect(() => {
         const tick = () => {
@@ -55,6 +124,8 @@ export const HomePage: React.FC = () => {
 
     return (
         <>
+            {modalContent && <FeatureModal content={{...modalContent, description: features.find(f => f.title === modalContent.title)?.longDescription || ''}} onClose={() => setModalContent(null)} />}
+
             <section className="relative h-[60vh] md:h-[70vh] text-white text-center flex flex-col justify-center">
                  <div className="absolute inset-0 w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${staticImage})` }}></div>
                  <div className="absolute inset-0 bg-black/40"></div>
@@ -90,21 +161,42 @@ export const HomePage: React.FC = () => {
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Why Choose Bus Rwanda?</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
                     <div className="grid md:grid-cols-3 gap-8">
-                        <FeatureCard 
-                            title="Easy Booking" 
-                            description="Find and book your bus ticket in just a few clicks." 
-                            icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>}
-                        />
-                         <FeatureCard 
-                            title="Secure Payments" 
-                            description="Pay securely with credit card or mobile money." 
-                            icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>}
-                        />
-                         <FeatureCard 
-                            title="24/7 Support" 
-                            description="Our team is ready to help you anytime, anywhere." 
-                            icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
-                        />
+                        {features.map(feature => (
+                             <FeatureCard 
+                                key={feature.title}
+                                title={feature.title}
+                                description={feature.description}
+                                icon={feature.icon}
+                                onLearnMore={() => setModalContent(feature)}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16 bg-orange-50/50">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Popular Destinations</h2>
+                    <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
+                    <div className="grid md:grid-cols-3 gap-8">
+                       <DestinationCard imageUrl="https://images.unsplash.com/photo-1605640228352-a3f7a264e104?q=80&w=2070&auto=format&fit=crop" name="Rubavu" description="Lakeside relaxation" />
+                       <DestinationCard imageUrl="https://images.unsplash.com/photo-1590425499238-0ed4b1b4898b?q=80&w=1974&auto=format&fit=crop" name="Musanze" description="Gateway to the gorillas" />
+                       <DestinationCard imageUrl="https://upload.wikimedia.org/wikipedia/commons/2/2c/Huye_%28Butare%29%2C_Rwanda._%2834015611684%29.jpg" name="Huye" description="The heart of culture" />
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Our Trusted Partners</h2>
+                    <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
+                    <div className="flex justify-center items-center gap-12 flex-wrap">
+                        {OPERATORS.map(op => (
+                            <div key={op.id} className="flex flex-col items-center text-center group">
+                                {op.logo}
+                                <p className="mt-2 font-semibold text-gray-600 group-hover:text-orange-600 transition-colors">{op.name}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
