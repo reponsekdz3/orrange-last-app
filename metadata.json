@@ -1,0 +1,5 @@
+{
+  "name": "Bus Rwanda Booking System",
+  "description": "A comprehensive bus booking and management application for Rwanda, allowing users to find routes, book tickets, and manage their journeys. It also includes a portal for bus operators to manage their services.",
+  "requestFramePermissions": []
+}
