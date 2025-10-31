@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
 
-type SettingsPage = 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET';
+type SettingsPage = 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET' | 'SECURITY';
 
 const SettingsNavItem: React.FC<{label: string; page: SettingsPage; activePage: SettingsPage; setPage: (page: SettingsPage) => void;}> = 
 ({ label, page, activePage, setPage }) => (
@@ -62,17 +62,46 @@ const DepositModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
     );
 };
 
+const PasswordStrengthMeter: React.FC<{password: string}> = ({ password }) => {
+    const checkStrength = () => {
+        let score = 0;
+        if (password.length > 8) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        return score;
+    };
+
+    const strength = checkStrength();
+    const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+    const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'];
+
+    return (
+        <div>
+            <div className="flex h-2 mb-2 rounded-full overflow-hidden">
+                <div className={`transition-all duration-300 ${strength > 0 ? strengthColors[0] : ''}`} style={{ width: '20%' }}></div>
+                <div className={`transition-all duration-300 ${strength > 1 ? strengthColors[1] : ''}`} style={{ width: '20%' }}></div>
+                <div className={`transition-all duration-300 ${strength > 2 ? strengthColors[2] : ''}`} style={{ width: '20%' }}></div>
+                <div className={`transition-all duration-300 ${strength > 3 ? strengthColors[3] : ''}`} style={{ width: '20%' }}></div>
+                <div className={`transition-all duration-300 ${strength > 4 ? strengthColors[4] : ''}`} style={{ width: '20%' }}></div>
+            </div>
+            <p className="text-xs text-right font-semibold">{password.length > 0 && strengthLabels[strength]}</p>
+        </div>
+    );
+};
+
 
 export const AccountSettingsPage: React.FC = () => {
     const { user } = useContext(AppContext);
     const [activePage, setActivePage] = useState<SettingsPage>('PERSONAL');
     const [showDepositModal, setShowDepositModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
 
     if (!user) {
         return <div className="p-8 text-center">Please log in to view your account settings.</div>;
     }
 
-    const [notifications, setNotifications] = useState(user.notifications);
+    const [notifications, setNotifications] = useState({ promotions: true, reminders: true, confirmations: true });
 
     const renderContent = () => {
         switch(activePage) {
@@ -99,6 +128,24 @@ export const AccountSettingsPage: React.FC = () => {
                         </form>
                     </div>
                 );
+            case 'SECURITY':
+                return (
+                    <div>
+                        <h3 className="font-bold text-xl mb-6 text-gray-800">Login Activity</h3>
+                        <p className="text-gray-500 mb-6">This is a list of devices that have logged into your account. Revoke any sessions that you do not recognize.</p>
+                        <div className="space-y-4">
+                            {user.recentActivity.map((activity, index) => (
+                                <div key={index} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{activity.device}</p>
+                                        <p className="text-sm text-gray-500">{activity.location} - {new Date(activity.timestamp).toLocaleString()}</p>
+                                    </div>
+                                    <button className="text-sm text-blue-600 font-semibold">{index === 0 ? 'Current Session' : 'Revoke'}</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
             case 'PASSWORD':
                  return (
                     <div>
@@ -110,7 +157,8 @@ export const AccountSettingsPage: React.FC = () => {
                             </div>
                              <div>
                                 <label className="text-sm font-medium text-gray-600">New Password</label>
-                                <input type="password" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50"/>
+                                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50"/>
+                                <PasswordStrengthMeter password={newPassword} />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-600">Confirm New Password</label>
@@ -182,6 +230,7 @@ export const AccountSettingsPage: React.FC = () => {
             <div className="grid lg:grid-cols-4 gap-8">
                 <aside className="lg:col-span-1 space-y-2">
                     <SettingsNavItem label="Personal Details" page="PERSONAL" activePage={activePage} setPage={setActivePage} />
+                    <SettingsNavItem label="Security & Login" page="SECURITY" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Change Password" page="PASSWORD" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Notifications" page="NOTIFICATIONS" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Payment Methods" page="PAYMENT" activePage={activePage} setPage={setActivePage} />

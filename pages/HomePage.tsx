@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
-import { ImageSlider } from '../components/ImageSlider';
 
 const FeatureCard: React.FC<{ title: string; description: string; icon: React.ReactNode }> = ({ title, description, icon }) => (
     <div className="bg-white p-6 rounded-2xl shadow-md text-center transform hover:-translate-y-2 transition-transform duration-300">
@@ -16,11 +15,7 @@ const FeatureCard: React.FC<{ title: string; description: string; icon: React.Re
 export const HomePage: React.FC = () => {
     const { setPage } = useContext(AppContext);
 
-    const sliderImages = [
-        "https://images.unsplash.com/photo-1599690367871-4604fc5513d7?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1603790076041-94d84790b2f9?q=80&w=1974&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop",
-    ];
+    const staticImage = "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop";
     
     const [headline, setHeadline] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
@@ -61,15 +56,15 @@ export const HomePage: React.FC = () => {
     return (
         <>
             <section className="relative h-[60vh] md:h-[70vh] text-white text-center flex flex-col justify-center">
-                <ImageSlider images={sliderImages}>
-                    <div className="relative z-10 p-4">
-                        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-shadow h-16">{headline}<span className="animate-pulse">|</span></h1>
-                        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-shadow">Book bus tickets across Rwanda with ease. Safe, reliable, and convenient travel at your fingertips.</p>
-                         <button onClick={() => setPage('FIND_BUS')} className="px-8 py-4 bg-white text-orange-600 font-bold rounded-full text-lg hover:bg-orange-100 transition-colors transform hover:scale-105">
-                            Find Your Bus Now
-                        </button>
-                    </div>
-                </ImageSlider>
+                 <div className="absolute inset-0 w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${staticImage})` }}></div>
+                 <div className="absolute inset-0 bg-black/40"></div>
+                 <div className="relative z-10 p-4">
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-shadow h-16">{headline}<span className="animate-pulse">|</span></h1>
+                    <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-shadow">Book bus tickets across Rwanda with ease. Safe, reliable, and convenient travel at your fingertips.</p>
+                     <button onClick={() => setPage('FIND_BUS')} className="px-8 py-4 bg-white text-orange-600 font-bold rounded-full text-lg hover:bg-orange-100 transition-colors transform hover:scale-105">
+                        Find Your Bus Now
+                    </button>
+                </div>
             </section>
             
             <style>{`.text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }`}</style>

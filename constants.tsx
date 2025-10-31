@@ -1,5 +1,6 @@
 import React from 'react';
-import { Operator, BusRoute, Ticket, Bus, Schedule } from './types';
+// FIX: Import User type to be used in MOCK_USERS
+import { Operator, BusRoute, Ticket, Bus, Schedule, User } from './types';
 
 const VolcanoExpressLogo = () => (
   <div className="w-12 h-12 flex items-center justify-center bg-red-600 text-white font-bold rounded-lg text-sm">V.E</div>
@@ -233,4 +234,43 @@ export const OPERATOR_SCHEDULES: Schedule[] = [
     { id: 'S1', route: { from: 'Kigali', to: 'Rubavu' }, bus: OPERATOR_BUSES[0], departureTime: '08:00 AM', status: 'Active' },
     { id: 'S2', route: { from: 'Kigali', to: 'Huye' }, bus: OPERATOR_BUSES[1], departureTime: '09:30 AM', status: 'Active' },
     { id: 'S3', route: { from: 'Kigali', to: 'Musanze' }, bus: OPERATOR_BUSES[0], departureTime: '10:00 AM', status: 'Cancelled' },
+];
+
+// FIX: Define and export MOCK_USERS to be used in App.tsx
+export const MOCK_USERS: User[] = [
+  {
+    id: 'user_1',
+    name: 'John Doe',
+    email: 'passenger@busrwanda.com',
+    type: 'passenger',
+    password: 'password123',
+    profilePicture: 'https://ui-avatars.com/api/?name=John+Doe&background=F97316&color=fff',
+    notifications: [
+      { id: 'n1', message: 'Your trip to Rubavu is confirmed for tomorrow.', read: false },
+      { id: 'n2', message: 'Special offer: 10% off on your next trip!', read: false },
+      { id: 'n3', message: 'Your ticket for Kigali > Huye has been used.', read: true },
+    ],
+    paymentMethods: [
+      { id: 'pm1', type: 'card', provider: 'Visa', last4: '1234' },
+      { id: 'pm2', type: 'mobile', provider: 'MTN', last4: '5678' },
+    ],
+    walletBalance: 15000,
+    recentActivity: [
+      { timestamp: new Date(Date.now() - 86400000).toISOString(), device: 'Chrome on macOS', location: 'Kigali, Rwanda' },
+    ],
+  },
+  {
+    id: 'user_2',
+    name: 'Jane Smith',
+    email: 'operator@busrwanda.com',
+    type: 'operator',
+    password: 'password123',
+    profilePicture: 'https://ui-avatars.com/api/?name=Jane+Smith&background=F97316&color=fff',
+    notifications: [],
+    paymentMethods: [],
+    walletBalance: 0,
+    recentActivity: [
+      { timestamp: new Date().toISOString(), device: 'Chrome on Windows', location: 'Kigali, Rwanda' },
+    ],
+  },
 ];

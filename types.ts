@@ -16,6 +16,7 @@ export type Page =
   | 'LOGIN'
   | 'REGISTER'
   | 'FORGOT_PASSWORD'
+  | 'LIVE_TRACKING'
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
   | 'OPERATOR_BUSES'
@@ -23,10 +24,10 @@ export type Page =
   | 'OPERATOR_REPORTS'
   | 'OPERATOR_SETTINGS';
 
-export type NotificationPreferences = {
-  promotions: boolean;
-  reminders: boolean;
-  confirmations: boolean;
+export type Notification = {
+  id: string;
+  message: string;
+  read: boolean;
 };
 
 export type PaymentMethod = {
@@ -36,15 +37,23 @@ export type PaymentMethod = {
   last4: string;
 };
 
+export type UserActivity = {
+  timestamp: string;
+  device: string;
+  location: string;
+};
+
 export type User = {
   id: string;
   name: string;
   email: string;
   type: 'passenger' | 'operator';
+  password?: string; // For mock database only, not for app state
   profilePicture?: string;
-  notifications: NotificationPreferences;
+  notifications: Notification[];
   paymentMethods: PaymentMethod[];
   walletBalance: number;
+  recentActivity: UserActivity[];
 };
 
 export type Operator = {
@@ -84,6 +93,7 @@ export type Ticket = {
   date: string;
   status: 'ACTIVE' | 'COMPLETED';
   seats: string[];
+  rating?: number;
 };
 
 export type Booking = {

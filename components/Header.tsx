@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Page } from '../types';
 import { AppContext } from '../App';
+import { NotificationBell } from './NotificationBell';
 
 const NavLink: React.FC<{
   label: string;
@@ -61,6 +62,7 @@ export const Header: React.FC = () => {
           )}
 
           <div className="flex items-center space-x-3">
+            {user && !isOperatorView && <NotificationBell notifications={user.notifications} />}
             {user ? (
               <button
                 onClick={logout}

@@ -1,8 +1,7 @@
-
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-const data = [
+const dailyRevenueData = [
   { name: 'Mon', Revenue: 4000 },
   { name: 'Tue', Revenue: 3000 },
   { name: 'Wed', Revenue: 2000 },
@@ -11,6 +10,14 @@ const data = [
   { name: 'Sat', Revenue: 2390 },
   { name: 'Sun', Revenue: 3490 },
 ];
+
+const occupancyData = [
+  { name: 'KGL > RBV', value: 85 },
+  { name: 'KGL > HYE', value: 92 },
+  { name: 'KGL > MSZ', value: 75 },
+  { name: 'Other', value: 68 },
+];
+const COLORS = ['#F97316', '#FB923C', '#FDBA74', '#FED7AA'];
 
 
 const StatCard: React.FC<{title: string; value: string; buttonText: string;}> = ({title, value, buttonText}) => (
@@ -35,10 +42,10 @@ export const OperatorDashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div className="lg:col-span-3 bg-white p-6 rounded-2xl shadow-md">
-                    <h3 className="font-bold text-lg mb-4 text-gray-800">Revenue Analytics</h3>
+                    <h3 className="font-bold text-lg mb-4 text-gray-800">Weekly Revenue</h3>
                     <div className="w-full h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                        <BarChart data={dailyRevenueData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{fill: '#6b7280', fontSize: 12}} />
                             <YAxis tick={{fill: '#6b7280', fontSize: 12}} />
@@ -49,23 +56,19 @@ export const OperatorDashboard: React.FC = () => {
                     </div>
                 </div>
                 <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md">
-                    <h3 className="font-bold text-lg mb-4 text-gray-800">Manage Routes</h3>
-                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-gray-500">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                <tr>
-                                    <th scope="col" className="px-4 py-3">Route</th>
-                                    <th scope="col" className="px-4 py-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className="bg-white border-b"><td className="px-4 py-3 font-medium text-gray-900">Kigali &gt; Rubavu</td><td className="px-4 py-3 text-green-500 font-semibold">Active</td></tr>
-                                <tr className="bg-white border-b"><td className="px-4 py-3 font-medium text-gray-900">Kigali &gt; Huye</td><td className="px-4 py-3 text-green-500 font-semibold">Active</td></tr>
-                                <tr className="bg-white border-b"><td className="px-4 py-3 font-medium text-gray-900">Kigali &gt; Musanze</td><td className="px-4 py-3 text-yellow-500 font-semibold">Pending</td></tr>
-                                <tr className="bg-white"><td className="px-4 py-3 font-medium text-gray-900">Rubavu &gt; Huye</td><td className="px-4 py-3 text-red-500 font-semibold">Inactive</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h3 className="font-bold text-lg mb-4 text-gray-800">Bus Occupancy by Route (%)</h3>
+                     <div className="w-full h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                           <PieChart>
+                                <Pie data={occupancyData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                    {occupancyData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={(value) => `${value}%`} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                     </div>
                 </div>
             </div>
         </main>

@@ -17,6 +17,7 @@ import { ConfirmationPage } from './pages/ConfirmationPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { NetworkMapPage } from './pages/NetworkMapPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { LiveTrackingPage } from './pages/LiveTrackingPage';
 
 // Operator pages
 import { OperatorDashboard } from './pages/OperatorDashboard';
@@ -26,12 +27,18 @@ import { OperatorBusesPage } from './pages/operator/OperatorBusesPage';
 import { OperatorSchedulesPage } from './pages/operator/OperatorSchedulesPage';
 import { OperatorReportsPage } from './pages/operator/OperatorReportsPage';
 import { OperatorSettingsPage } from './pages/operator/OperatorSettingsPage';
+import { MOCK_USERS } from './constants';
+
+type LoginCredentials = { email: string; password: string };
+type RegisterCredentials = { name: string; email: string; password: string };
+
 
 interface AppContextType {
   page: Page;
   setPage: (page: Page) => void;
   user: User | null;
-  login: (user: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods' | 'walletBalance'>) => void;
+  login: (credentials: LoginCredentials) => void;
+  register: (credentials: RegisterCredentials) => void;
   logout: () => void;
   selectedRoute: BusRoute | null;
   setSelectedRoute: (route: BusRoute | null) => void;
@@ -46,37 +53,64 @@ export const AppContext = createContext<AppContextType>({} as AppContextType);
 const App: React.FC = () => {
   const [page, setPage] = useState<Page>('HOME');
   const [user, setUser] = useState<User | null>(null);
+  const [usersDB, setUsersDB] = useState<User[]>(MOCK_USERS);
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [booking, setBooking] = useState<Booking>({ route: null, seats: [], totalPrice: 0 });
   const [toast, setToast] = useState<ToastMessage>(null);
 
-  const login = (userData: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods' | 'walletBalance'>) => {
-    const fullUserData: User = {
-        ...userData,
-        profilePicture: '',
-        walletBalance: 5000, // Default wallet balance for demo
-        notifications: {
-            promotions: true,
-            reminders: true,
-            confirmations: true,
-        },
-        paymentMethods: [],
-    };
-    setUser(fullUserData);
-    if (userData.type === 'operator') {
-      setPage('OPERATOR_DASHBOARD');
+  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+    setToast({ message, type });
+  };
+
+  const login = ({ email, password }: LoginCredentials) => {
+    const foundUser = usersDB.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    if (foundUser) {
+        const { password, ...userToStore } = foundUser;
+        setUser(userToStore);
+        if (userToStore.type === 'operator') {
+          setPage('OPERATOR_DASHBOARD');
+        } else {
+          setPage('HOME');
+        }
+        showToast(`Welcome back, ${userToStore.name}!`, 'success');
     } else {
-      setPage('HOME');
+        showToast('Invalid email or password.', 'error');
     }
   };
+
+  const register = ({ name, email, password }: RegisterCredentials) => {
+    const existingUser = usersDB.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existingUser) {
+        showToast('An account with this email already exists.', 'error');
+        return;
+    }
+    const newUser: User = {
+        id: `user_${Date.now()}`,
+        name,
+        email,
+        password, // In a real app, this would be hashed
+        type: 'passenger',
+        profilePicture: '',
+        walletBalance: 0,
+        notifications: [],
+        paymentMethods: [],
+        recentActivity: [{
+            timestamp: new Date().toISOString(),
+            device: 'Web Browser',
+            location: 'Kigali, Rwanda (estimate)'
+        }]
+    };
+    setUsersDB([...usersDB, newUser]);
+    const { password: _, ...userToStore } = newUser;
+    setUser(userToStore);
+    setPage('HOME');
+    showToast('Account created successfully!', 'success');
+  };
+
 
   const logout = () => {
     setUser(null);
     setPage('HOME');
-  };
-  
-  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
-    setToast({ message, type });
   };
   
   const updateWalletBalance = (amount: number) => {
@@ -93,6 +127,7 @@ const App: React.FC = () => {
     },
     user,
     login,
+    register,
     logout,
     selectedRoute,
     setSelectedRoute,
@@ -120,14 +155,15 @@ const App: React.FC = () => {
       case 'MY_TICKETS': return <MyTicketsPage />;
       case 'HELP': return <HelpPage />;
       case 'CONTACT': return <ContactPage />;
-      case 'LOGIN': return <LoginPage isRegister={false} />;
-      case 'REGISTER': return <LoginPage isRegister={true} />;
+      case 'LOGIN': return <LoginPage key="login" isRegister={false} />;
+      case 'REGISTER': return <LoginPage key="register" isRegister={true} />;
       case 'FORGOT_PASSWORD': return <ForgotPasswordPage />;
       case 'ACCOUNT_SETTINGS': return <AccountSettingsPage />;
       case 'ROUTE_STOPS': return <RouteStopsPage />;
       case 'SEAT_SELECTION': return <SeatSelectionPage />;
       case 'PAYMENT': return <PaymentPage />;
       case 'CONFIRMATION': return <ConfirmationPage />;
+      case 'LIVE_TRACKING': return <LiveTrackingPage />;
 
       // Operator pages
       case 'OPERATOR_DASHBOARD': return <OperatorDashboard />;
