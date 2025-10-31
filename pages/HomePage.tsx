@@ -15,7 +15,7 @@ const FeatureModal: React.FC<{
                     </div>
                     <h3 className="font-bold text-2xl text-gray-800">{content.title}</h3>
                 </div>
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">&times;</button>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
             </div>
             <p className="text-gray-600">{content.description}</p>
         </div>
@@ -35,22 +35,31 @@ const FeatureCard: React.FC<{
     icon: React.ReactNode;
     onLearnMore: () => void;
 }> = ({ title, description, icon, onLearnMore }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-md text-center transform hover:-translate-y-2 transition-transform duration-300 flex flex-col">
-        <div className="mx-auto bg-orange-100 text-orange-600 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-            {icon}
+    <div className="group perspective h-64">
+        <div className="relative preserve-3d group-hover:rotate-y-180 w-full h-full duration-500">
+            {/* Card Front */}
+            <div className="absolute backface-hidden w-full h-full bg-white p-6 rounded-2xl shadow-md text-center flex flex-col items-center justify-center">
+                <div className="mx-auto bg-orange-100 text-orange-600 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    {icon}
+                </div>
+                <h3 className="font-bold text-lg text-gray-800">{title}</h3>
+            </div>
+            {/* Card Back */}
+            <div className="absolute rotate-y-180 backface-hidden w-full h-full bg-white p-6 rounded-2xl shadow-lg text-center flex flex-col items-center justify-center">
+                <p className="text-gray-600 text-sm flex-grow mb-4">{description}</p>
+                <button onClick={onLearnMore} className="mt-auto px-4 py-2 text-sm font-semibold text-orange-600 bg-orange-100 rounded-full hover:bg-orange-200 transition-colors">
+                    Learn More
+                </button>
+            </div>
         </div>
-        <h3 className="font-bold text-lg text-gray-800 mb-2">{title}</h3>
-        <p className="text-gray-600 text-sm flex-grow mb-4">{description}</p>
-        <button onClick={onLearnMore} className="mt-auto px-4 py-2 text-sm font-semibold text-orange-600 bg-orange-100 rounded-full hover:bg-orange-200 transition-colors">
-            Learn More
-        </button>
     </div>
 );
+
 
 const DestinationCard: React.FC<{ imageUrl: string; name: string; description: string }> = ({ imageUrl, name, description }) => (
     <div className="group rounded-2xl overflow-hidden shadow-lg relative transform hover:scale-105 transition-transform duration-300">
         <img src={imageUrl} alt={name} className="w-full h-80 object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent group-hover:from-black/90 transition-all"></div>
         <div className="absolute bottom-0 left-0 p-6">
             <h3 className="text-2xl font-bold text-white mb-1">{name}</h3>
             <p className="text-orange-200 text-sm">{description}</p>
@@ -124,22 +133,31 @@ export const HomePage: React.FC = () => {
 
     return (
         <>
+            <style>{`
+                .perspective { perspective: 1000px; }
+                .preserve-3d { transform-style: preserve-3d; }
+                .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+                .rotate-y-180 { transform: rotateY(180deg); }
+                .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+            `}</style>
+
             {modalContent && <FeatureModal content={{...modalContent, description: features.find(f => f.title === modalContent.title)?.longDescription || ''}} onClose={() => setModalContent(null)} />}
 
             <section className="relative h-[60vh] md:h-[70vh] text-white text-center flex flex-col justify-center">
                  <div className="absolute inset-0 w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${staticImage})` }}></div>
-                 <div className="absolute inset-0 bg-black/40"></div>
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                  <div className="relative z-10 p-4">
                     <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-shadow h-16">{headline}<span className="animate-pulse">|</span></h1>
                     <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-shadow">Book bus tickets across Rwanda with ease. Safe, reliable, and convenient travel at your fingertips.</p>
-                     <button onClick={() => setPage('FIND_BUS')} className="px-8 py-4 bg-white text-orange-600 font-bold rounded-full text-lg hover:bg-orange-100 transition-colors transform hover:scale-105">
+                     <button 
+                        onClick={() => setPage('FIND_BUS')} 
+                        className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-full text-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg"
+                     >
                         Find Your Bus Now
                     </button>
                 </div>
             </section>
             
-            <style>{`.text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }`}</style>
-
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white/80 backdrop-blur-lg max-w-5xl mx-auto rounded-3xl p-6 shadow-lg -mt-24 z-10 relative">
                     <div className="grid md:grid-cols-3 gap-4 items-end">
@@ -181,7 +199,7 @@ export const HomePage: React.FC = () => {
                 </div>
             </section>
 
-            <section className="py-16 bg-orange-50/50">
+            <section className="py-16 bg-gradient-to-b from-white to-orange-50/30">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Why Choose Bus Rwanda?</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
@@ -199,7 +217,7 @@ export const HomePage: React.FC = () => {
                 </div>
             </section>
 
-            <section className="py-16">
+            <section className="py-16 bg-gradient-to-b from-orange-50/30 to-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Popular Destinations</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>

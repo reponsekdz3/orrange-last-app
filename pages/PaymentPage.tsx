@@ -2,7 +2,34 @@ import React, { useState, useContext } from 'react';
 import { Page } from '../types';
 import { AppContext } from '../App';
 
-type PaymentMethod = 'card' | 'mobile' | 'wallet';
+type PaymentMethod = 'card' | 'wallet';
+
+const PaymentMethodCard: React.FC<{
+    method: PaymentMethod;
+    label: string;
+    icon: React.ReactNode;
+    selected: boolean;
+    onClick: () => void;
+}> = ({ method, label, icon, selected, onClick }) => (
+    <div
+        onClick={onClick}
+        className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+            selected ? 'border-orange-500 bg-orange-50 shadow-lg' : 'border-gray-200 bg-white hover:border-orange-300'
+        }`}
+    >
+        <div className="flex items-center justify-between">
+            <div className="flex items-center">
+                <div className="text-gray-600 mr-4">{icon}</div>
+                <span className="font-bold text-gray-800">{label}</span>
+            </div>
+            {selected && (
+                <div className="w-6 h-6 flex items-center justify-center bg-orange-500 rounded-full text-white">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                </div>
+            )}
+        </div>
+    </div>
+);
 
 export const PaymentPage: React.FC = () => {
     const { setPage, booking, user, updateWalletBalance, showToast } = useContext(AppContext);
@@ -24,6 +51,7 @@ export const PaymentPage: React.FC = () => {
             }
             updateWalletBalance(-booking.totalPrice);
         }
+        // In a real app, card payment processing would happen here.
         setPage('CONFIRMATION');
     };
     
@@ -52,28 +80,27 @@ export const PaymentPage: React.FC = () => {
 
                 <div className="bg-white p-8 rounded-2xl shadow-md">
                     <h3 className="font-bold text-xl mb-4 text-gray-800">Payment Method</h3>
-                    <p className="text-gray-500 mb-4">Select a Method</p>
+                    <p className="text-gray-500 mb-6">Select a secure payment option.</p>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <button 
+                    <div className="space-y-4 mb-6">
+                        <PaymentMethodCard
+                            method="card"
+                            label="Credit/Debit Card"
+                            icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>}
+                            selected={paymentMethod === 'card'}
                             onClick={() => setPaymentMethod('card')}
-                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
-                            <span className="font-semibold text-sm text-gray-700">Card</span>
-                        </button>
-                        <button 
-                            onClick={() => setPaymentMethod('mobile')}
-                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
-                            <span className="font-semibold text-sm text-gray-700">Mobile Money</span>
-                        </button>
-                         <button 
+                        />
+                        <PaymentMethodCard
+                            method="wallet"
+                            label="Pay with Wallet"
+                            icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+                            selected={paymentMethod === 'wallet'}
                             onClick={() => setPaymentMethod('wallet')}
-                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'wallet' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
-                            <span className="font-semibold text-sm text-gray-700">Wallet</span>
-                        </button>
+                        />
                     </div>
 
                     {paymentMethod === 'card' && (
-                        <div className="space-y-4">
+                        <div className="space-y-4 animate-fade-in">
                             <div>
                                 <label className="text-sm font-medium text-gray-600">Cardholder Name</label>
                                 <input type="text" defaultValue={user?.name} className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
@@ -95,16 +122,8 @@ export const PaymentPage: React.FC = () => {
                         </div>
                     )}
 
-                    {paymentMethod === 'mobile' && (
-                        <div>
-                             <label className="text-sm font-medium text-gray-600">Phone Number</label>
-                             <input type="tel" placeholder="Enter your mobile money number" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
-                             <p className="text-xs text-gray-500 mt-2">You will receive a prompt on your phone to approve the payment.</p>
-                        </div>
-                    )}
-
                     {paymentMethod === 'wallet' && (
-                        <div className="bg-orange-50 p-4 rounded-lg text-center">
+                        <div className="bg-orange-50 p-4 rounded-lg text-center animate-fade-in">
                             <p className="text-sm font-semibold text-orange-700">AVAILABLE BALANCE</p>
                             <p className="text-2xl font-bold text-orange-600 mb-2">RWF {user.walletBalance.toLocaleString()}</p>
                              {user.walletBalance < booking.totalPrice && (
@@ -124,6 +143,10 @@ export const PaymentPage: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <style>{`
+                @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+                .animate-fade-in { animation: fade-in 0.5s ease-out; }
+            `}</style>
         </div>
     );
 };

@@ -37,7 +37,9 @@ export const ConfirmationPage: React.FC = () => {
         arrivalTime: booking.route.arrivalTime,
         passengerName: user?.name || 'Guest User',
         seats: booking.seats,
-        totalPrice: booking.totalPrice
+        totalPrice: booking.totalPrice,
+        // This is a placeholder as we don't pass the method.
+        paymentMethod: 'Wallet / Card' 
     };
     
     return (
@@ -63,14 +65,24 @@ export const ConfirmationPage: React.FC = () => {
                         <div><span className="font-semibold text-gray-500 block">ARRIVAL:</span> {ticket.arrivalTime}</div>
                         <div><span className="font-semibold text-gray-500 block">PASSENGER:</span> {ticket.passengerName}</div>
                         <div><span className="font-semibold text-gray-500 block">SEATS:</span> {ticket.seats.join(', ')}</div>
-                        <div className="col-span-2 mt-2"><span className="font-bold text-gray-800 block text-lg">TOTAL PRICE:</span> RWF {ticket.totalPrice.toLocaleString()}</div>
+                        <div className="col-span-2 mt-2"><span className="font-semibold text-gray-500 block">PAYMENT METHOD:</span> {ticket.paymentMethod}</div>
+                        <div className="col-span-2"><span className="font-bold text-gray-800 block text-lg">TOTAL PRICE:</span> RWF {ticket.totalPrice.toLocaleString()}</div>
                     </div>
                     
                     <div className="border-t border-dashed w-full my-8"></div>
+                    
+                    <div className="w-full max-w-md">
+                         <h3 className="font-bold text-xl mb-4 text-gray-800">What's Next?</h3>
+                         <div className="space-y-3 text-left">
+                             <div className="flex items-start"><span className="text-orange-500 mr-2">&#10003;</span><p>Arrive at the terminal at least 15 minutes before departure.</p></div>
+                             <div className="flex items-start"><span className="text-orange-500 mr-2">&#10003;</span><p>Have your e-ticket (this QR code) ready for scanning.</p></div>
+                             <div className="flex items-start"><span className="text-orange-500 mr-2">&#10003;</span><p>A confirmation has been sent to your email and is available under 'My Tickets'.</p></div>
+                         </div>
+                    </div>
 
-                    <div className="w-full flex flex-col sm:flex-row gap-4">
+                    <div className="w-full flex flex-col sm:flex-row gap-4 mt-8">
                         <button className="flex-1 py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600">Download Ticket (PDF)</button>
-                        <button className="flex-1 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-black">Add to Apple Wallet / Google Pay</button>
+                        <button className="flex-1 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-black">Add to Calendar</button>
                     </div>
                 </div>
 

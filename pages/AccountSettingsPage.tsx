@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
 import { USER_TICKETS, OPERATORS } from '../constants';
 
@@ -23,41 +23,88 @@ const Toggle: React.FC<{label: string; enabled: boolean; setEnabled: (enabled: b
     </div>
 );
 
+type DepositStep = 'AMOUNT' | 'CONFIRM' | 'VERIFYING' | 'SUCCESS';
+
 const DepositModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
     const { updateWalletBalance, showToast } = useContext(AppContext);
     const [amount, setAmount] = useState('');
+    const [step, setStep] = useState<DepositStep>('AMOUNT');
 
-    const handleDeposit = (e: React.FormEvent) => {
+    const handleAmountSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const depositAmount = parseFloat(amount);
         if (depositAmount > 0) {
-            updateWalletBalance(depositAmount);
-            showToast(`RWF ${depositAmount.toLocaleString()} successfully added to your wallet.`, 'success');
-            onClose();
+            setStep('CONFIRM');
         } else {
             showToast('Please enter a valid amount.', 'error');
         }
     };
 
+    const handleConfirm = () => {
+        setStep('VERIFYING');
+        setTimeout(() => {
+            setStep('SUCCESS');
+            updateWalletBalance(parseFloat(amount));
+            setTimeout(() => {
+                showToast(`RWF ${parseFloat(amount).toLocaleString()} successfully added.`, 'success');
+                onClose();
+            }, 1500);
+        }, 2000);
+    };
+
+    const renderStepContent = () => {
+        switch (step) {
+            case 'AMOUNT':
+                return (
+                    <form onSubmit={handleAmountSubmit} className="space-y-4">
+                        <h3 className="font-bold text-xl mb-4 text-gray-800">Deposit Funds</h3>
+                        <p className="text-gray-500 mb-6">Enter the amount you wish to deposit from your MTN Mobile Money account.</p>
+                        <div>
+                            <label className="text-sm font-medium text-gray-600">Amount (RWF)</label>
+                            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g., 10000" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-600">Phone Number</label>
+                            <input type="tel" defaultValue="0788..." className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
+                        </div>
+                        <div className="flex justify-end space-x-3 pt-4">
+                            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">Cancel</button>
+                            <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Proceed</button>
+                        </div>
+                    </form>
+                );
+            case 'CONFIRM':
+                return (
+                    <div className="text-center">
+                        <h3 className="font-bold text-xl mb-4 text-gray-800">Confirm Transaction</h3>
+                        <p className="text-gray-600 mb-6">A payment request of <span className="font-bold">RWF {parseFloat(amount).toLocaleString()}</span> has been sent to your phone. Please approve the transaction by entering your MTN Mobile Money PIN.</p>
+                        <button onClick={handleConfirm} className="w-full px-4 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">I have approved the payment</button>
+                         <button onClick={() => setStep('AMOUNT')} className="mt-2 text-sm text-gray-500 hover:underline">Go Back</button>
+                    </div>
+                );
+            case 'VERIFYING':
+                return (
+                    <div className="text-center py-8">
+                         <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                         <h3 className="font-bold text-xl text-gray-800">Verifying Payment...</h3>
+                    </div>
+                );
+            case 'SUCCESS':
+                 return (
+                    <div className="text-center py-8">
+                         <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                         </div>
+                         <h3 className="font-bold text-xl text-gray-800">Deposit Successful!</h3>
+                    </div>
+                );
+        }
+    };
+    
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-sm w-full">
-                <h3 className="font-bold text-xl mb-4 text-gray-800">Deposit Funds</h3>
-                <p className="text-gray-500 mb-6">Enter the amount you wish to deposit from your MTN Mobile Money account.</p>
-                <form onSubmit={handleDeposit} className="space-y-4">
-                    <div>
-                        <label className="text-sm font-medium text-gray-600">Amount (RWF)</label>
-                        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g., 10000" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium text-gray-600">Phone Number</label>
-                        <input type="tel" placeholder="0788..." className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
-                    </div>
-                    <div className="flex justify-end space-x-3 pt-4">
-                        <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Confirm Deposit</button>
-                    </div>
-                </form>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-sm w-full transition-all duration-300">
+                {renderStepContent()}
             </div>
         </div>
     );
@@ -290,7 +337,7 @@ export const AccountSettingsPage: React.FC = () => {
                 return (
                     <div>
                         <h3 className="font-bold text-xl mb-2 text-gray-800">My Wallet</h3>
-                        <p className="text-gray-500 mb-6">View your balance and deposit funds.</p>
+                        <p className="text-gray-500 mb-6">View your balance and deposit funds via Mobile Money.</p>
                         <div className="bg-orange-50 p-6 rounded-lg text-center mb-6">
                             <p className="text-sm font-semibold text-orange-700">CURRENT BALANCE</p>
                             <p className="text-4xl font-bold text-orange-600">RWF {user.walletBalance.toLocaleString()}</p>
