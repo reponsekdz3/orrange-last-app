@@ -51,6 +51,7 @@ export const Header: React.FC = () => {
             <nav className="hidden md:flex items-center space-x-2">
               <NavLink label="HOME" page="HOME" />
               <NavLink label="FIND BUS" page="FIND_BUS" />
+              <NavLink label="SERVICES" page="SERVICES" />
               {user && <NavLink label="MY TICKETS" page="MY_TICKETS" />}
               <NavLink label="HELP" page="HELP" />
               <NavLink label="CONTACT" page="CONTACT" />

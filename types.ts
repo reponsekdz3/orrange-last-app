@@ -3,6 +3,7 @@ import React from 'react';
 export type Page =
   | 'HOME'
   | 'FIND_BUS'
+  | 'SERVICES'
   | 'ROUTE_STOPS'
   | 'SEAT_SELECTION'
   | 'PAYMENT'
@@ -103,3 +104,8 @@ export type Schedule = {
   departureTime: string;
   status: 'Active' | 'Cancelled';
 };
+
+export type ToastMessage = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+} | null;

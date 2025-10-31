@@ -1,7 +1,8 @@
 import React, { useState, createContext } from 'react';
-import { Page, User, BusRoute, Booking } from './types';
+import { Page, User, BusRoute, Booking, ToastMessage } from './types';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { Toast } from './components/Toast';
 import { HomePage } from './pages/HomePage';
 import { FindBusPage } from './pages/FindBusPage';
 import { MyTicketsPage } from './pages/MyTicketsPage';
@@ -13,6 +14,7 @@ import { RouteStopsPage } from './pages/RouteStopsPage';
 import { SeatSelectionPage } from './pages/SeatSelectionPage';
 import { PaymentPage } from './pages/PaymentPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
+import { ServicesPage } from './pages/ServicesPage'; // Import new page
 
 // Operator pages
 import { OperatorDashboard } from './pages/OperatorDashboard';
@@ -33,6 +35,7 @@ interface AppContextType {
   setSelectedRoute: (route: BusRoute | null) => void;
   booking: Booking;
   setBooking: (booking: Booking) => void;
+  showToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
 export const AppContext = createContext<AppContextType>({} as AppContextType);
@@ -42,6 +45,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [booking, setBooking] = useState<Booking>({ route: null, seats: [], totalPrice: 0 });
+  const [toast, setToast] = useState<ToastMessage>(null);
 
   const login = (userData: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods'>) => {
     const fullUserData: User = {
@@ -66,6 +70,11 @@ const App: React.FC = () => {
     setUser(null);
     setPage('HOME');
   };
+  
+  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+    setToast({ message, type });
+  };
+
 
   const appContextValue: AppContextType = {
     page,
@@ -87,6 +96,7 @@ const App: React.FC = () => {
     setSelectedRoute,
     booking,
     setBooking,
+    showToast,
   };
 
   const isOperatorView = user?.type === 'operator' && [
@@ -102,6 +112,7 @@ const App: React.FC = () => {
     switch (page) {
       case 'HOME': return <HomePage />;
       case 'FIND_BUS': return <FindBusPage />;
+      case 'SERVICES': return <ServicesPage />;
       case 'MY_TICKETS': return <MyTicketsPage />;
       case 'HELP': return <HelpPage />;
       case 'CONTACT': return <ContactPage />;
@@ -140,6 +151,7 @@ const App: React.FC = () => {
           </main>
         )}
         {!isOperatorView && <Footer />}
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </div>
     </AppContext.Provider>
   );
