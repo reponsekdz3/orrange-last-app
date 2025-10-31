@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Page } from '../types';
 import { AppContext } from '../App';
+import { PinInputModal } from '../components/PinInputModal';
 
 type PaymentMethod = 'card' | 'wallet';
 
@@ -34,6 +35,7 @@ const PaymentMethodCard: React.FC<{
 export const PaymentPage: React.FC = () => {
     const { setPage, booking, user, updateWalletBalance, showToast } = useContext(AppContext);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+    const [showPinModal, setShowPinModal] = useState(false);
 
     if (!booking.route || booking.seats.length === 0) {
         return <div className="p-8 text-center">Invalid booking details. Please start again.</div>;
@@ -43,20 +45,44 @@ export const PaymentPage: React.FC = () => {
         return <div className="p-8 text-center">Please log in to proceed with payment.</div>;
     }
 
-    const handlePayment = () => {
+    const processWalletPayment = () => {
+        if (user.walletBalance < booking.totalPrice) {
+            showToast('Insufficient wallet balance.', 'error');
+            return;
+        }
+        updateWalletBalance(-booking.totalPrice);
+        setPage('CONFIRMATION');
+    };
+
+    const handleConfirmAndPay = () => {
         if (paymentMethod === 'wallet') {
-            if (user.walletBalance < booking.totalPrice) {
-                showToast('Insufficient wallet balance.', 'error');
+            if (!user.walletPin) {
+                showToast('Please set up a wallet PIN in your account settings.', 'error');
+                setPage('ACCOUNT_SETTINGS');
                 return;
             }
-            updateWalletBalance(-booking.totalPrice);
+            setShowPinModal(true);
+        } else {
+            // In a real app, card payment processing would happen here.
+            showToast('Processing card payment...', 'info');
+            setTimeout(() => {
+                setPage('CONFIRMATION');
+            }, 1500);
         }
-        // In a real app, card payment processing would happen here.
-        setPage('CONFIRMATION');
     };
     
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {showPinModal && (
+                <PinInputModal
+                    title="Enter Wallet PIN to Pay"
+                    onSuccess={() => {
+                        setShowPinModal(false);
+                        processWalletPayment();
+                    }}
+                    onClose={() => setShowPinModal(false)}
+                />
+            )}
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Secure Payment</h1>
             <div className="w-20 h-1 bg-orange-500 rounded-full mb-8"></div>
 
@@ -136,7 +162,7 @@ export const PaymentPage: React.FC = () => {
                     )}
                     
                     <button 
-                        onClick={handlePayment}
+                        onClick={handleConfirmAndPay}
                         disabled={paymentMethod === 'wallet' && user.walletBalance < booking.totalPrice}
                         className="w-full mt-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                         Confirm & Pay RWF {booking.totalPrice.toLocaleString()}

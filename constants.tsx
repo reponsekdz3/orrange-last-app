@@ -15,9 +15,9 @@ const HorizonLogo = () => (
 );
 
 export const OPERATORS: Operator[] = [
-  { id: 'volcano', name: 'Volcano Express', logo: <VolcanoExpressLogo /> },
-  { id: 'ritco', name: 'RITCO', logo: <RitcoLogo /> },
-  { id: 'horizon', name: 'Horizon Express', logo: <HorizonLogo /> },
+  { id: 'volcano', name: 'Volcano Express', logo: <VolcanoExpressLogo />, fleetSize: 45, avgRating: 4.6 },
+  { id: 'ritco', name: 'RITCO', logo: <RitcoLogo />, fleetSize: 80, avgRating: 4.3 },
+  { id: 'horizon', name: 'Horizon Express', logo: <HorizonLogo />, fleetSize: 30, avgRating: 4.5 },
 ];
 
 const generateSeats = (bookedCount: number): { id: string, status: 'available' | 'booked' }[] => {
@@ -264,6 +264,7 @@ export const MOCK_USERS: User[] = [
       { id: 'pm2', type: 'mobile', provider: 'MTN', last4: '5678' },
     ],
     walletBalance: 15000,
+    walletPin: '12345',
     recentActivity: [
       { timestamp: new Date(Date.now() - 86400000).toISOString(), device: 'Chrome on macOS', location: 'Kigali, Rwanda' },
     ],
@@ -274,6 +275,8 @@ export const MOCK_USERS: User[] = [
         ],
         preferredOperators: ['volcano', 'ritco'],
     },
+    isVerified: true,
+    twoFactorEnabled: true,
   },
   {
     id: 'user_2',
@@ -292,5 +295,7 @@ export const MOCK_USERS: User[] = [
         favoriteRoutes: [],
         preferredOperators: [],
     },
+    isVerified: true,
+    twoFactorEnabled: false,
   },
 ];

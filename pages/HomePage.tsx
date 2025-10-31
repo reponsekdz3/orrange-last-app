@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
+// FIX: Import Operator type from '../types' instead of '../constants'
 import { OPERATORS } from '../constants';
+import { Operator } from '../types';
 
 const FeatureModal: React.FC<{
   content: { title: string; description: string; icon: React.ReactNode };
@@ -55,6 +57,28 @@ const FeatureCard: React.FC<{
     </div>
 );
 
+const OperatorCard: React.FC<{ operator: Operator }> = ({ operator }) => (
+    <div className="group perspective h-48">
+        <div className="relative preserve-3d group-hover:rotate-y-180 w-full h-full duration-500">
+             {/* Card Front */}
+            <div className="absolute backface-hidden w-full h-full bg-white p-6 rounded-2xl shadow-md text-center flex flex-col items-center justify-center">
+                {operator.logo}
+                <p className="mt-2 font-semibold text-gray-600">{operator.name}</p>
+            </div>
+            {/* Card Back */}
+            <div className="absolute rotate-y-180 backface-hidden w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-lg text-center flex flex-col items-center justify-center">
+                <div className="space-y-1">
+                    <p><strong>Fleet Size:</strong> {operator.fleetSize}</p>
+                    <p><strong>Avg. Rating:</strong> {operator.avgRating} ★</p>
+                </div>
+                <button className="mt-4 px-4 py-2 text-sm font-semibold text-orange-600 bg-white rounded-full hover:bg-orange-100 transition-colors">
+                    View Routes
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
 
 const DestinationCard: React.FC<{ imageUrl: string; name: string; description: string }> = ({ imageUrl, name, description }) => (
     <div className="group rounded-2xl overflow-hidden shadow-lg relative transform hover:scale-105 transition-transform duration-300">
@@ -64,6 +88,18 @@ const DestinationCard: React.FC<{ imageUrl: string; name: string; description: s
             <h3 className="text-2xl font-bold text-white mb-1">{name}</h3>
             <p className="text-orange-200 text-sm">{description}</p>
         </div>
+    </div>
+);
+
+const PromotionCard: React.FC<{ title: string; description: string; bgColor: string; }> = ({ title, description, bgColor }) => (
+    <div className={`flex-shrink-0 w-80 h-40 rounded-2xl p-6 text-white shadow-lg flex flex-col justify-between ${bgColor}`}>
+        <div>
+            <h4 className="font-bold text-lg">{title}</h4>
+            <p className="text-sm opacity-90">{description}</p>
+        </div>
+        <button className="self-start mt-2 text-xs font-bold bg-white/30 px-3 py-1 rounded-full hover:bg-white/50 transition-colors">
+            Learn More
+        </button>
     </div>
 );
 
@@ -139,6 +175,8 @@ export const HomePage: React.FC = () => {
                 .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
                 .rotate-y-180 { transform: rotateY(180deg); }
                 .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
             {modalContent && <FeatureModal content={{...modalContent, description: features.find(f => f.title === modalContent.title)?.longDescription || ''}} onClose={() => setModalContent(null)} />}
@@ -162,11 +200,11 @@ export const HomePage: React.FC = () => {
                 <div className="bg-white/80 backdrop-blur-lg max-w-5xl mx-auto rounded-3xl p-6 shadow-lg -mt-24 z-10 relative">
                     <div className="grid md:grid-cols-3 gap-4 items-end">
                         <div>
-                            <label className="text-sm font-medium text-gray-600">Departure</label>
+                            <label className="text-sm font-medium text-orange-600">Departure</label>
                             <input type="text" placeholder="e.g. Kigali" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-gray-600">Destination</label>
+                            <label className="text-sm font-medium text-orange-600">Destination</label>
                             <input type="text" placeholder="e.g. Rubavu" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
                         </div>
                         <button onClick={() => setPage('FIND_BUS')} className="w-full py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors">Search Buses</button>
@@ -217,6 +255,19 @@ export const HomePage: React.FC = () => {
                 </div>
             </section>
 
+            <section className="py-16">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Special Offers</h2>
+                    <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
+                    <div className="flex space-x-6 overflow-x-auto pb-4 hide-scrollbar">
+                        <PromotionCard title="Weekend Getaway" description="15% off on all Rubavu trips this weekend!" bgColor="bg-gradient-to-br from-red-500 to-orange-500" />
+                        <PromotionCard title="Student Discount" description="Show your student ID and get 20% off any route." bgColor="bg-gradient-to-br from-blue-500 to-sky-500" />
+                        <PromotionCard title="Family Package" description="Book 4 seats and get the 5th one free!" bgColor="bg-gradient-to-br from-green-500 to-teal-500" />
+                        <PromotionCard title="Early Bird Special" description="Book 2 weeks in advance and save 10%." bgColor="bg-gradient-to-br from-purple-500 to-indigo-500" />
+                    </div>
+                </div>
+            </section>
+
             <section className="py-16 bg-gradient-to-b from-orange-50/30 to-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Popular Destinations</h2>
@@ -250,13 +301,8 @@ export const HomePage: React.FC = () => {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Our Trusted Partners</h2>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-12"></div>
-                    <div className="flex justify-center items-center gap-12 flex-wrap">
-                        {OPERATORS.map(op => (
-                            <div key={op.id} className="flex flex-col items-center text-center group">
-                                {op.logo}
-                                <p className="mt-2 font-semibold text-gray-600 group-hover:text-orange-600 transition-colors">{op.name}</p>
-                            </div>
-                        ))}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        {OPERATORS.map(op => <OperatorCard key={op.id} operator={op} />)}
                     </div>
                 </div>
             </section>

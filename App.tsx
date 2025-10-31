@@ -3,6 +3,7 @@ import { Page, User, BusRoute, Booking, ToastMessage } from './types';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
+import { TwoFactorAuthModal } from './components/TwoFactorAuthModal';
 import { HomePage } from './pages/HomePage';
 import { FindBusPage } from './pages/FindBusPage';
 import { MyTicketsPage } from './pages/MyTicketsPage';
@@ -18,6 +19,7 @@ import { ServicesPage } from './pages/ServicesPage';
 import { NetworkMapPage } from './pages/NetworkMapPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { LiveTrackingPage } from './pages/LiveTrackingPage';
+import { VerifyEmailPage } from './pages/VerifyEmailPage';
 
 // Operator pages
 import { OperatorDashboard } from './pages/OperatorDashboard';
@@ -47,6 +49,10 @@ interface AppContextType {
   setBooking: (booking: Booking) => void;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
   updateWalletBalance: (amount: number) => void;
+  verifyPin: (pin: string) => boolean;
+  setWalletPin: (pin: string) => void;
+  verifyEmail: (email: string) => void;
+  setTwoFactorEnabled: (enabled: boolean) => void;
 }
 
 export const AppContext = createContext<AppContextType>({} as AppContextType);
@@ -58,24 +64,50 @@ const App: React.FC = () => {
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [booking, setBooking] = useState<Booking>({ route: null, seats: [], totalPrice: 0 });
   const [toast, setToast] = useState<ToastMessage>(null);
+  
+  const [pending2FAUser, setPending2FAUser] = useState<User | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToast({ message, type });
   };
 
+  const completeLogin = (userToLogin: User) => {
+    const { password, ...userToStore } = userToLogin;
+    setUser(userToStore);
+    if (userToStore.type === 'operator') {
+      setPage('OPERATOR_DASHBOARD');
+    } else {
+      setPage('HOME');
+    }
+    showToast(`Welcome back, ${userToStore.name}!`, 'success');
+  };
+
   const login = ({ email, password }: LoginCredentials) => {
     const foundUser = usersDB.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
     if (foundUser) {
-        const { password, ...userToStore } = foundUser;
-        setUser(userToStore);
-        if (userToStore.type === 'operator') {
-          setPage('OPERATOR_DASHBOARD');
-        } else {
-          setPage('HOME');
+        if (!foundUser.isVerified) {
+            showToast('Please verify your email before logging in.', 'error');
+            setPage('VERIFY_EMAIL');
+            return;
         }
-        showToast(`Welcome back, ${userToStore.name}!`, 'success');
+        if (foundUser.twoFactorEnabled) {
+            setPending2FAUser(foundUser);
+        } else {
+            completeLogin(foundUser);
+        }
     } else {
         showToast('Invalid email or password.', 'error');
+    }
+  };
+  
+  const verifyEmail = (email: string) => {
+    // In a real app, this would happen after a user clicks a link.
+    // Here, we'll just find the user and log them in.
+    setUsersDB(usersDB.map(u => u.email === email ? { ...u, isVerified: true } : u));
+    const userToLogin = usersDB.find(u => u.email === email);
+    if (userToLogin) {
+        completeLogin(userToLogin);
+        showToast('Email verified successfully!', 'success');
     }
   };
 
@@ -103,13 +135,13 @@ const App: React.FC = () => {
         preferences: {
             favoriteRoutes: [],
             preferredOperators: [],
-        }
+        },
+        isVerified: false,
+        twoFactorEnabled: false,
     };
     setUsersDB([...usersDB, newUser]);
-    const { password: _, ...userToStore } = newUser;
-    setUser(userToStore);
-    setPage('HOME');
-    showToast('Account created successfully!', 'success');
+    setPage('VERIFY_EMAIL');
+    showToast('Account created! Please verify your email.', 'success');
   };
 
 
@@ -121,6 +153,30 @@ const App: React.FC = () => {
   const updateWalletBalance = (amount: number) => {
     if (user) {
         setUser({ ...user, walletBalance: user.walletBalance + amount });
+    }
+  };
+
+  const verifyPin = (pin: string): boolean => {
+    if (user?.walletPin === pin) {
+        return true;
+    }
+    showToast('Incorrect PIN.', 'error');
+    return false;
+  };
+  
+  const setTwoFactorEnabled = (enabled: boolean) => {
+    if (user) {
+        const updatedUser = { ...user, twoFactorEnabled: enabled };
+        setUser(updatedUser);
+        setUsersDB(usersDB.map(u => u.id === user.id ? { ...u, twoFactorEnabled: enabled } : u));
+    }
+  };
+
+  const setWalletPin = (pin: string) => {
+    if (user) {
+        setUser({ ...user, walletPin: pin });
+        // Also update the "DB"
+        setUsersDB(usersDB.map(u => u.id === user.id ? { ...u, walletPin: pin } : u));
     }
   };
 
@@ -140,6 +196,10 @@ const App: React.FC = () => {
     setBooking,
     showToast,
     updateWalletBalance,
+    verifyPin,
+    setWalletPin,
+    verifyEmail,
+    setTwoFactorEnabled,
   };
 
   const isOperatorView = user?.type === 'operator' && [
@@ -164,6 +224,7 @@ const App: React.FC = () => {
       case 'LOGIN': return <LoginPage key="login" isRegister={false} />;
       case 'REGISTER': return <LoginPage key="register" isRegister={true} />;
       case 'FORGOT_PASSWORD': return <ForgotPasswordPage />;
+      case 'VERIFY_EMAIL': return <VerifyEmailPage />;
       case 'ACCOUNT_SETTINGS': return <AccountSettingsPage />;
       case 'ROUTE_STOPS': return <RouteStopsPage />;
       case 'SEAT_SELECTION': return <SeatSelectionPage />;
@@ -200,6 +261,15 @@ const App: React.FC = () => {
         )}
         {!isOperatorView && <Footer />}
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        {pending2FAUser && (
+            <TwoFactorAuthModal
+                onClose={() => setPending2FAUser(null)}
+                onSuccess={() => {
+                    completeLogin(pending2FAUser);
+                    setPending2FAUser(null);
+                }}
+            />
+        )}
       </div>
     </AppContext.Provider>
   );

@@ -16,6 +16,7 @@ export type Page =
   | 'LOGIN'
   | 'REGISTER'
   | 'FORGOT_PASSWORD'
+  | 'VERIFY_EMAIL' // New page for email verification
   | 'LIVE_TRACKING'
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
@@ -59,14 +60,19 @@ export type User = {
   notifications: Notification[];
   paymentMethods: PaymentMethod[];
   walletBalance: number;
+  walletPin?: string; // 5-digit PIN for wallet transactions
   recentActivity: UserActivity[];
   preferences: UserPreferences;
+  isVerified: boolean; // For email verification
+  twoFactorEnabled: boolean; // For 2FA
 };
 
 export type Operator = {
   id: string;
   name: string;
   logo: React.ReactNode;
+  fleetSize: number;
+  avgRating: number;
 };
 
 export type Seat = {

@@ -1,8 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
 import { USER_TICKETS, OPERATORS } from '../constants';
+import { PinInputModal } from '../components/PinInputModal';
 
 type SettingsPage = 'DASHBOARD' | 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET' | 'SECURITY' | 'PREFERENCES';
+type TwoFactorStep = 'START' | 'SCAN' | 'VERIFY' | 'RECOVERY';
 
 const SettingsNavItem: React.FC<{label: string; page: SettingsPage; activePage: SettingsPage; setPage: (page: SettingsPage) => void;}> = 
 ({ label, page, activePage, setPage }) => (
@@ -25,22 +27,12 @@ const Toggle: React.FC<{label: string; enabled: boolean; setEnabled: (enabled: b
 
 type DepositStep = 'AMOUNT' | 'CONFIRM' | 'VERIFYING' | 'SUCCESS';
 
-const DepositModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
+const DepositModal: React.FC<{onClose: () => void; onPinRequired: (onSuccess: () => void) => void;}> = ({onClose, onPinRequired}) => {
     const { updateWalletBalance, showToast } = useContext(AppContext);
     const [amount, setAmount] = useState('');
     const [step, setStep] = useState<DepositStep>('AMOUNT');
 
-    const handleAmountSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const depositAmount = parseFloat(amount);
-        if (depositAmount > 0) {
-            setStep('CONFIRM');
-        } else {
-            showToast('Please enter a valid amount.', 'error');
-        }
-    };
-
-    const handleConfirm = () => {
+    const processDeposit = () => {
         setStep('VERIFYING');
         setTimeout(() => {
             setStep('SUCCESS');
@@ -50,6 +42,20 @@ const DepositModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
                 onClose();
             }, 1500);
         }, 2000);
+    }
+    
+    const handleConfirm = () => {
+        onPinRequired(processDeposit);
+    };
+    
+    const handleAmountSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const depositAmount = parseFloat(amount);
+        if (depositAmount > 0) {
+            setStep('CONFIRM');
+        } else {
+            showToast('Please enter a valid amount.', 'error');
+        }
     };
 
     const renderStepContent = () => {
@@ -128,7 +134,7 @@ const PasswordStrengthMeter: React.FC<{password: string}> = ({ password }) => {
     return (
         <div className="mt-2">
             <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-200">
-                <div className={`transition-all duration-300 ${strength > 0 ? strengthColors[0] : ''}`} style={{ width: `${(strength / 5) * 100}%` }}></div>
+                <div className={`transition-all duration-300 ${strength > 0 ? strengthColors[strength -1] : ''}`} style={{ width: `${(strength / 5) * 100}%` }}></div>
             </div>
             <p className={`text-xs text-right font-semibold mt-1 transition-opacity duration-300 ${password.length > 0 ? 'opacity-100' : 'opacity-0'}`}>
                 {strengthLabels[strength -1] || ''}
@@ -150,17 +156,118 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
 );
 
 
+const TwoFactorAuthSetup: React.FC = () => {
+    const { user, showToast, setTwoFactorEnabled } = useContext(AppContext);
+    const [step, setStep] = useState<TwoFactorStep>('START');
+    const [code, setCode] = useState('');
+
+    const handleVerify = () => {
+        // Mock verification
+        if (code === '123456') {
+            setTwoFactorEnabled(true);
+            setStep('RECOVERY');
+            showToast('2FA enabled successfully!', 'success');
+        } else {
+            showToast('Invalid code. Please try again.', 'error');
+        }
+    };
+    
+    if (!user) return null;
+
+    if (user.twoFactorEnabled && step !== 'RECOVERY') {
+        return (
+            <div>
+                 <div className="bg-green-50 p-4 rounded-lg flex items-center">
+                    <svg className="w-6 h-6 text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p className="text-green-800 font-semibold">Two-Factor Authentication is currently enabled.</p>
+                </div>
+                 <button onClick={() => setTwoFactorEnabled(false)} className="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg text-sm hover:bg-red-600">
+                    Disable 2FA
+                </button>
+            </div>
+        )
+    }
+
+    switch (step) {
+        case 'START':
+            return (
+                <button onClick={() => setStep('SCAN')} className="px-6 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-black">
+                    Enable Two-Factor Authentication
+                </button>
+            );
+        case 'SCAN':
+            return (
+                <div className="space-y-4">
+                    <p className="font-semibold">1. Scan this QR code with your authenticator app.</p>
+                    <div className="p-4 bg-white border rounded-lg inline-block">
+                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/BusRwanda:passenger@busrwanda.com?secret=JBSWY3DPEHPK3PXP&issuer=BusRwanda" alt="Mock 2FA QR Code"/>
+                    </div>
+                    <p className="text-sm text-gray-500">Use an app like Google Authenticator, Authy, or 1Password.</p>
+                     <button onClick={() => setStep('VERIFY')} className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg text-sm hover:bg-orange-600">
+                        Next
+                    </button>
+                </div>
+            );
+        case 'VERIFY':
+            return (
+                 <div className="space-y-4 max-w-xs">
+                    <p className="font-semibold">2. Enter the 6-digit code from your app.</p>
+                    <input type="text" value={code} onChange={e => setCode(e.target.value)} placeholder="123456" maxLength={6} className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50"/>
+                    <button onClick={handleVerify} className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg text-sm hover:bg-orange-600">
+                        Verify & Enable
+                    </button>
+                </div>
+            )
+        case 'RECOVERY':
+             return (
+                 <div className="space-y-4">
+                    <p className="font-bold text-lg text-green-700">2FA Enabled!</p>
+                    <p className="text-gray-600">Save these recovery codes in a safe place. They can be used to access your account if you lose your device.</p>
+                    <div className="bg-gray-100 p-4 rounded-lg font-mono grid grid-cols-2 gap-2 text-gray-700">
+                        <span>a1b2-c3d4</span>
+                        <span>e5f6-g7h8</span>
+                        <span>i9j0-k1l2</span>
+                        <span>m3n4-o5p6</span>
+                        <span>q7r8-s9t0</span>
+                        <span>u1v2-w3x4</span>
+                    </div>
+                    <button onClick={() => setStep('START')} className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg text-sm hover:bg-gray-300">
+                        Done
+                    </button>
+                </div>
+             )
+    }
+}
+
+
 export const AccountSettingsPage: React.FC = () => {
-    const { user, setPage, showToast } = useContext(AppContext);
+    const { user, setPage, showToast, setWalletPin } = useContext(AppContext);
     const [activePage, setActivePage] = useState<SettingsPage>('DASHBOARD');
     const [showDepositModal, setShowDepositModal] = useState(false);
     const [newPassword, setNewPassword] = useState('');
+    const [pinModalState, setPinModalState] = useState<{ visible: boolean; onSuccess?: () => void; title: string; }>({ visible: false, title: '' });
 
     if (!user) {
         return <div className="p-8 text-center">Please log in to view your account settings.</div>;
     }
 
     const [notifications, setNotifications] = useState({ promotions: true, reminders: true, confirmations: true });
+
+    const handlePinRequired = (onSuccess: () => void) => {
+        setShowDepositModal(false);
+        setPinModalState({ visible: true, onSuccess, title: 'Enter Wallet PIN to Confirm Deposit' });
+    };
+
+    const handleSetPin = () => {
+        // In a real app, this would be a multi-step modal (enter new, confirm new)
+        const newPin = prompt("Enter a new 5-digit PIN:");
+        if (newPin && /^\d{5}$/.test(newPin)) {
+            setWalletPin(newPin);
+            showToast('PIN updated successfully!', 'success');
+        } else if (newPin) {
+            showToast('Invalid PIN. Must be 5 digits.', 'error');
+        }
+    }
 
     const renderContent = () => {
         switch(activePage) {
@@ -259,18 +366,28 @@ export const AccountSettingsPage: React.FC = () => {
             case 'SECURITY':
                 return (
                     <div>
-                        <h3 className="font-bold text-xl mb-6 text-gray-800">Login Activity</h3>
-                        <p className="text-gray-500 mb-6">This is a list of devices that have logged into your account. Revoke any sessions that you do not recognize.</p>
-                        <div className="space-y-4">
-                            {user.recentActivity.map((activity, index) => (
-                                <div key={index} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">{activity.device}</p>
-                                        <p className="text-sm text-gray-500">{activity.location} - {new Date(activity.timestamp).toLocaleString()}</p>
-                                    </div>
-                                    <button className="text-sm text-blue-600 font-semibold">{index === 0 ? 'Current Session' : 'Revoke'}</button>
+                        <h3 className="font-bold text-xl mb-6 text-gray-800">Security Settings</h3>
+                        <div className="space-y-8">
+                            <div>
+                                <h4 className="font-semibold text-lg text-gray-700 mb-2">Two-Factor Authentication (2FA)</h4>
+                                <p className="text-gray-500 mb-4">Add an extra layer of security to your account.</p>
+                                <TwoFactorAuthSetup />
+                            </div>
+                            <div className="border-t pt-8">
+                                <h4 className="font-semibold text-lg text-gray-700 mb-2">Login Activity</h4>
+                                <p className="text-gray-500 mb-4">This is a list of devices that have logged into your account.</p>
+                                <div className="space-y-4">
+                                    {user.recentActivity.map((activity, index) => (
+                                        <div key={index} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
+                                            <div>
+                                                <p className="font-semibold text-gray-800">{activity.device}</p>
+                                                <p className="text-sm text-gray-500">{activity.location} - {new Date(activity.timestamp).toLocaleString()}</p>
+                                            </div>
+                                            <button className="text-sm text-blue-600 font-semibold">{index === 0 ? 'Current Session' : 'Revoke'}</button>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
                 );
@@ -336,15 +453,25 @@ export const AccountSettingsPage: React.FC = () => {
             case 'WALLET':
                 return (
                     <div>
-                        <h3 className="font-bold text-xl mb-2 text-gray-800">My Wallet</h3>
-                        <p className="text-gray-500 mb-6">View your balance and deposit funds via Mobile Money.</p>
+                        <h3 className="font-bold text-xl mb-2 text-gray-800">Wallet & PIN</h3>
+                        <p className="text-gray-500 mb-6">View your balance, deposit funds, and manage your security PIN.</p>
                         <div className="bg-orange-50 p-6 rounded-lg text-center mb-6">
                             <p className="text-sm font-semibold text-orange-700">CURRENT BALANCE</p>
                             <p className="text-4xl font-bold text-orange-600">RWF {user.walletBalance.toLocaleString()}</p>
                         </div>
-                        <button onClick={() => setShowDepositModal(true)} className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">
-                            Deposit Funds
-                        </button>
+                        <div className="flex space-x-4">
+                            <button onClick={() => setShowDepositModal(true)} className="flex-1 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">
+                                Deposit Funds
+                            </button>
+                            <button onClick={handleSetPin} className="flex-1 px-6 py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-black">
+                                {user.walletPin ? 'Change PIN' : 'Set PIN'}
+                            </button>
+                        </div>
+                         {!user.walletPin && (
+                            <div className="mt-4 p-3 bg-yellow-100 text-yellow-800 text-sm rounded-lg text-center">
+                                <strong>Security Alert:</strong> Please set up a PIN to secure your wallet and enable payments.
+                            </div>
+                        )}
                     </div>
                 );
         }
@@ -353,7 +480,17 @@ export const AccountSettingsPage: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {showDepositModal && <DepositModal onClose={() => setShowDepositModal(false)} />}
+            {showDepositModal && <DepositModal onClose={() => setShowDepositModal(false)} onPinRequired={handlePinRequired}/>}
+            {pinModalState.visible && (
+                <PinInputModal
+                    title={pinModalState.title}
+                    onSuccess={() => {
+                        pinModalState.onSuccess?.();
+                        setPinModalState({ visible: false, title: '' });
+                    }}
+                    onClose={() => setPinModalState({ visible: false, title: '' })}
+                />
+            )}
             <h1 className="text-3xl font-bold text-gray-800 mb-8">Account Settings</h1>
             <div className="grid lg:grid-cols-4 gap-8 items-start">
                 <aside className="lg:col-span-1 space-y-2 sticky top-28">
@@ -364,7 +501,7 @@ export const AccountSettingsPage: React.FC = () => {
                     <SettingsNavItem label="Change Password" page="PASSWORD" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Notifications" page="NOTIFICATIONS" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Payment Methods" page="PAYMENT" activePage={activePage} setPage={setActivePage} />
-                    <SettingsNavItem label="Wallet" page="WALLET" activePage={activePage} setPage={setActivePage} />
+                    <SettingsNavItem label="Wallet & PIN" page="WALLET" activePage={activePage} setPage={setActivePage} />
                 </aside>
                 <main className="lg:col-span-3 bg-white p-8 rounded-2xl shadow-md min-h-[400px]">
                    {renderContent()}
