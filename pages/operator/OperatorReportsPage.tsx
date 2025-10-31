@@ -24,7 +24,7 @@ const feedbackTrendsData = [
 ];
 
 const StatCard = ({ title, value, subtext }: { title: string; value: string; subtext: string }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-md text-center">
+    <div className="bg-white p-6 rounded-2xl shadow-md text-center transform hover:-translate-y-1 transition-transform duration-300">
         <h3 className="text-sm font-semibold text-gray-500 uppercase">{title}</h3>
         <p className="text-4xl font-bold text-gray-800 my-2">{value}</p>
         <p className="text-xs text-gray-500">{subtext}</p>
@@ -34,7 +34,16 @@ const StatCard = ({ title, value, subtext }: { title: string; value: string; sub
 export const OperatorReportsPage: React.FC = () => {
     return (
         <main className="flex-1 p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Reports & Analytics</h1>
+             <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
+                <h1 className="text-3xl font-bold text-gray-800">Reports & Analytics</h1>
+                 <div className="flex items-center space-x-2">
+                    <span className="font-semibold text-sm">Date Range:</span>
+                    <input type="date" className="p-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"/>
+                    <span className="font-semibold text-sm">-</span>
+                    <input type="date" className="p-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"/>
+                 </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard title="Total Revenue" value="RWF 45M" subtext="All time" />
                 <StatCard title="Total Bookings" value="784" subtext="This month" />

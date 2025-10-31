@@ -34,6 +34,7 @@ interface AppContextType {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (updatedData: Partial<User>) => void;
   selectedRoute: BusRoute | null;
   setSelectedRoute: (route: BusRoute | null) => void;
   booking: Booking;
@@ -52,7 +53,10 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [booking, setBooking] = useState<Booking>(initialBookingState);
   
   const login = (user: User) => {
-    setUser(user);
+    const savedPic = localStorage.getItem('userProfilePic');
+    const userWithPic = savedPic ? { ...user, profilePic: savedPic } : user;
+    setUser(userWithPic);
+
     if (user.type === 'operator') {
       setPage('OPERATOR_DASHBOARD');
     } else {
@@ -62,13 +66,26 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('userProfilePic');
     setPage('HOME');
   };
   
+  const updateUser = (updatedData: Partial<User>) => {
+    if (user) {
+        const newUser = { ...user, ...updatedData };
+        setUser(newUser);
+        if (updatedData.profilePic) {
+             localStorage.setItem('userProfilePic', updatedData.profilePic);
+        } else if (updatedData.profilePic === null) {
+            localStorage.removeItem('userProfilePic');
+        }
+    }
+  };
+
   const resetBooking = () => setBooking(initialBookingState);
 
   const contextValue = {
-    page, setPage, user, login, logout,
+    page, setPage, user, login, logout, updateUser,
     selectedRoute, setSelectedRoute,
     booking, setBooking, resetBooking,
   };

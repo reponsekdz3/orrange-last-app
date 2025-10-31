@@ -5,13 +5,23 @@ import type { Bus } from '../../types';
 
 export const OperatorBusesPage: React.FC = () => {
     const [buses, setBuses] = useState<Bus[]>(OPERATOR_BUSES);
-    const [selectedBus, setSelectedBus] = useState<Bus | null>(buses[0]);
+    const [selectedBus, setSelectedBus] = useState<Bus | null>(buses[0] || null);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
-        // Logic to save bus details would go here
-        alert(`Bus ${selectedBus?.plateNumber} saved!`);
+        if (!selectedBus) return;
+        setBuses(buses.map(bus => bus.id === selectedBus.id ? selectedBus : bus));
+        alert(`Bus ${selectedBus.plateNumber} saved!`);
     };
+
+    const handleAmenityChange = (amenity: string, checked: boolean) => {
+        if (!selectedBus) return;
+        const currentAmenities = selectedBus.amenities || [];
+        const newAmenities = checked
+            ? [...currentAmenities, amenity]
+            : currentAmenities.filter(a => a !== amenity);
+        setSelectedBus({ ...selectedBus, amenities: newAmenities });
+    }
 
     return (
         <main className="flex-1 p-6 sm:p-8">
@@ -20,7 +30,7 @@ export const OperatorBusesPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-gray-800">Manage Fleet</h1>
                     <div className="w-20 h-1 bg-orange-500 rounded-full mt-2"></div>
                 </div>
-                <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600">
+                <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transform hover:scale-105 transition-transform">
                     Add New Bus
                 </button>
             </div>
@@ -43,7 +53,7 @@ export const OperatorBusesPage: React.FC = () => {
                             </thead>
                             <tbody>
                                 {buses.map(bus => (
-                                    <tr key={bus.id} onClick={() => setSelectedBus(bus)} className={`border-b hover:bg-orange-50 cursor-pointer ${selectedBus?.id === bus.id ? 'bg-orange-50' : ''}`}>
+                                    <tr key={bus.id} onClick={() => setSelectedBus(bus)} className={`border-b hover:bg-orange-50 cursor-pointer transition-colors ${selectedBus?.id === bus.id ? 'bg-orange-50' : ''}`}>
                                         <td className="p-3 font-semibold text-gray-800">{bus.plateNumber}</td>
                                         <td className="p-3">{bus.model}</td>
                                         <td className="p-3 text-xs">{bus.amenities.join(', ')}</td>
@@ -73,19 +83,19 @@ export const OperatorBusesPage: React.FC = () => {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-600">Capacity</label>
-                                <input type="number" value={selectedBus.capacity} onChange={e => setSelectedBus({...selectedBus, capacity: parseInt(e.target.value)})} className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50" />
+                                <input type="number" value={selectedBus.capacity} onChange={e => setSelectedBus({...selectedBus, capacity: parseInt(e.target.value) || 0})} className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50" />
                             </div>
                              <div>
                                 <p className="text-sm font-medium text-gray-600 mb-2">Amenities</p>
                                 <div className="grid grid-cols-2 gap-2 text-sm">
-                                    <label className="flex items-center"><input type="checkbox" checked={selectedBus.amenities.includes('WiFi')} className="mr-2"/> WiFi</label>
-                                    <label className="flex items-center"><input type="checkbox" checked={selectedBus.amenities.includes('AC')} className="mr-2"/> AC</label>
-                                     <label className="flex items-center"><input type="checkbox" checked={selectedBus.amenities.includes('Reclining Seats')} className="mr-2"/> Reclining Seats</label>
+                                    <label className="flex items-center"><input type="checkbox" onChange={e => handleAmenityChange('WiFi', e.target.checked)} checked={selectedBus.amenities.includes('WiFi')} className="mr-2"/> WiFi</label>
+                                    <label className="flex items-center"><input type="checkbox" onChange={e => handleAmenityChange('AC', e.target.checked)} checked={selectedBus.amenities.includes('AC')} className="mr-2"/> AC</label>
+                                    <label className="flex items-center"><input type="checkbox" onChange={e => handleAmenityChange('Reclining Seats', e.target.checked)} checked={selectedBus.amenities.includes('Reclining Seats')} className="mr-2"/> Reclining Seats</label>
                                 </div>
                             </div>
                             <div className="pt-2 flex items-center justify-between">
                                 <button type="button" className="text-sm font-semibold text-red-600 hover:underline">Delete Bus</button>
-                                <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Save Changes</button>
+                                <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transform hover:scale-105 transition-transform">Save Changes</button>
                             </div>
                         </form>
                     </div>

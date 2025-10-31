@@ -5,11 +5,13 @@ import type { Schedule } from '../../types';
 
 export const OperatorSchedulesPage: React.FC = () => {
     const [schedules, setSchedules] = useState<Schedule[]>(OPERATOR_SCHEDULES);
-    const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(schedules[0]);
+    const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(schedules[0] || null);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
-        alert(`Schedule ${selectedSchedule?.id} saved!`);
+        if (!selectedSchedule) return;
+        setSchedules(schedules.map(s => s.id === selectedSchedule.id ? selectedSchedule : s));
+        alert(`Schedule ${selectedSchedule.id} saved!`);
     };
 
     return (
@@ -21,7 +23,7 @@ export const OperatorSchedulesPage: React.FC = () => {
                 </div>
                  <div className="flex space-x-2">
                     <button className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border rounded-lg hover:bg-gray-50">View Calendar</button>
-                    <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600">Create New Schedule</button>
+                    <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transform hover:scale-105 transition-transform">Create New Schedule</button>
                 </div>
             </div>
 
@@ -30,7 +32,7 @@ export const OperatorSchedulesPage: React.FC = () => {
                     <h3 className="font-bold text-lg text-gray-800 mb-4">Date Range</h3>
                     <div className="flex items-center space-x-4 mb-4">
                         <input type="date" className="p-2 border border-gray-200 rounded-lg bg-gray-50"/>
-                        <button className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg">Apply Filters</button>
+                        <button className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Apply Filters</button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
@@ -44,7 +46,7 @@ export const OperatorSchedulesPage: React.FC = () => {
                             </thead>
                             <tbody>
                                 {schedules.map(schedule => (
-                                     <tr key={schedule.id} onClick={() => setSelectedSchedule(schedule)} className={`border-b hover:bg-orange-50 cursor-pointer ${selectedSchedule?.id === schedule.id ? 'bg-orange-50' : ''}`}>
+                                     <tr key={schedule.id} onClick={() => setSelectedSchedule(schedule)} className={`border-b hover:bg-orange-50 cursor-pointer transition-colors ${selectedSchedule?.id === schedule.id ? 'bg-orange-50' : ''}`}>
                                         <td className="p-3 font-semibold text-gray-800">{schedule.route.from} &gt; {schedule.route.to}</td>
                                         <td className="p-3">{schedule.bus.plateNumber}</td>
                                         <td className="p-3">{schedule.departureTime}</td>
@@ -65,7 +67,7 @@ export const OperatorSchedulesPage: React.FC = () => {
                         <form onSubmit={handleSave}>
                             <div>
                                 <label className="text-sm font-medium text-gray-600">Route</label>
-                                <select className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50">
+                                <select className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50" value={`${selectedSchedule.route.from} > ${selectedSchedule.route.to}`}>
                                     <option>Kigali &gt; Rubavu</option>
                                     <option>Kigali &gt; Huye</option>
                                 </select>
@@ -78,11 +80,11 @@ export const OperatorSchedulesPage: React.FC = () => {
                             </div>
                              <div>
                                 <label className="text-sm font-medium text-gray-600">Departure Time</label>
-                                <input type="time" value={selectedSchedule.departureTime.split(' ')[0]} className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50" />
+                                <input type="time" value={selectedSchedule.departureTime.split(' ')[0]} onChange={e => setSelectedSchedule({...selectedSchedule, departureTime: `${e.target.value} AM`})} className="w-full mt-1 p-2 border border-gray-200 rounded-lg bg-gray-50" />
                             </div>
                             <div className="pt-2 flex items-center justify-between">
                                 <button type="button" className="text-sm font-semibold text-red-600 hover:underline">Delete Bus</button>
-                                <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Save Changes</button>
+                                <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transform hover:scale-105 transition-transform">Save Changes</button>
                             </div>
                         </form>
                      </div>
