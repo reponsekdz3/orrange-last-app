@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// FIX: Import `Schedule` type from `types.ts` instead of `constants.ts`.
 import { OPERATOR_SCHEDULES, OPERATOR_BUSES } from '../../constants';
 import type { Schedule } from '../../types';
 

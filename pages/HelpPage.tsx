@@ -1,74 +1,51 @@
-import React, { useState } from 'react';
-// FIX: Import `Feedback` type from `types.ts` instead of `constants.ts`.
-import { USER_FEEDBACK } from '../constants';
-import type { Feedback } from '../types';
+import React from 'react';
 
-const FeedbackCard: React.FC<{ item: Feedback }> = ({ item }) => (
-    <div className="bg-white p-4 rounded-lg border border-gray-200 flex items-start space-x-4">
-        <div className="flex-shrink-0">{item.icon}</div>
-        <div>
-            <p className="font-semibold text-gray-800">{item.type}: {item.description}</p>
-            <p className="text-sm text-gray-500">{item.date}</p>
-        </div>
-    </div>
+const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => (
+    <details className="bg-white p-6 rounded-2xl shadow-sm transition-all duration-300 open:shadow-lg open:ring-1 open:ring-orange-200">
+        <summary className="font-bold text-lg text-gray-800 cursor-pointer list-none flex justify-between items-center">
+            {question}
+            <span className="text-orange-500 transform transition-transform duration-300 detail-arrow">
+                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </span>
+        </summary>
+        <p className="text-gray-600 mt-4">{answer}</p>
+    </details>
 );
 
-export const HelpPage: React.FC = () => {
-    const [feedbackType, setFeedbackType] = useState<'problem' | 'idea' | 'general'>('problem');
 
+export const HelpPage: React.FC = () => {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Feedback & Support</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Help & Support</h1>
+            <p className="text-gray-600 mb-8 text-center">Find answers to your questions and get help with our services.</p>
 
-            <div className="flex justify-center mb-8 space-x-2">
-                {['All', 'Express', 'Luxury', 'Budget'].map(f => (
-                    <button key={f} className={`px-6 py-2 rounded-full font-semibold transition-colors ${ f === 'All' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-orange-100'}`}>
-                        {f}
-                    </button>
-                ))}
+            <div className="max-w-3xl mx-auto space-y-4">
+                <FAQItem 
+                    question="How do I book a ticket?"
+                    answer="To book a ticket, go to the 'Find Bus' page, select your departure and destination, choose a bus from the list, select your seat, and proceed to payment. It's that simple!"
+                />
+                 <FAQItem 
+                    question="What payment methods are accepted?"
+                    answer="We accept payments via Credit/Debit Cards and major Mobile Money providers in Rwanda. All transactions are secure."
+                />
+                 <FAQItem 
+                    question="Can I cancel my ticket?"
+                    answer="Ticket cancellation policies vary by operator. Please check the terms and conditions during booking or contact our support team for assistance with a specific booking."
+                />
+                 <FAQItem 
+                    question="How do I view my past tickets?"
+                    answer="If you have an account, you can log in and navigate to the 'My Tickets' page to see a history of all your upcoming and past journeys."
+                />
+                 <FAQItem 
+                    question="I'm having trouble with my payment. What should I do?"
+                    answer="If you encounter any payment issues, please double-check your card or mobile money details. If the problem persists, try a different payment method or contact our support team immediately for help."
+                />
             </div>
-
-            <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                <div className="bg-white p-8 rounded-2xl shadow-md">
-                    <h3 className="font-bold text-xl mb-6 text-gray-800">Submit Feedback</h3>
-                    <form className="space-y-4">
-                        <div>
-                            <label className="text-sm font-medium text-gray-600">Select Booking</label>
-                            <select className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500">
-                                <option>ONATRACOM - Kigali to Rubavu (2024-10-27)</option>
-                                <option>STELLA EXPRESS - Kigali to Huye (2024-11-15)</option>
-                            </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-600">Feedback Type</label>
-                            <div className="flex flex-col space-y-2">
-                                <label className="flex items-center"><input type="radio" name="feedbackType" checked={feedbackType === 'problem'} onChange={() => setFeedbackType('problem')} className="mr-2" /> Report a Problem</label>
-                                <label className="flex items-center"><input type="radio" name="feedbackType" checked={feedbackType === 'idea'} onChange={() => setFeedbackType('idea')} className="mr-2" /> Share an Idea</label>
-                                <label className="flex items-center"><input type="radio" name="feedbackType" checked={feedbackType === 'general'} onChange={() => setFeedbackType('general')} className="mr-2" /> General Feedback</label>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-600">Describe your problem or idea in detail...</label>
-                            <textarea rows={4} className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
-                        </div>
-                        <div className="py-2 px-4 bg-gray-100 rounded-lg text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-200">
-                            Attach File(s)
-                        </div>
-                        <button type="submit" className="w-full py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors">
-                            Submit Feedback
-                        </button>
-                    </form>
-                </div>
-                <div className="bg-white p-8 rounded-2xl shadow-md">
-                    <h3 className="font-bold text-xl mb-6 text-gray-800">Your Feedback History</h3>
-                    <div className="space-y-4">
-                        {USER_FEEDBACK.map(item => <FeedbackCard key={item.id} item={item} />)}
-                    </div>
-                    <button className="w-full mt-6 text-center font-semibold text-orange-600 hover:underline">
-                        View All Past Feedback
-                    </button>
-                </div>
-            </div>
+             <style>{`
+                details[open] .detail-arrow {
+                    transform: rotate(180deg);
+                }
+            `}</style>
         </div>
     );
 };

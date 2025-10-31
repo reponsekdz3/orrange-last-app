@@ -1,18 +1,18 @@
-import type { ReactNode } from 'react';
+import React from 'react';
 
-export type Page = 
-  | 'HOME' 
-  | 'FIND_BUS' 
-  | 'MY_TICKETS' 
-  | 'HELP' 
-  | 'CONTACT'
-  | 'LOGIN'
-  | 'REGISTER'
+export type Page =
+  | 'HOME'
+  | 'FIND_BUS'
   | 'ROUTE_STOPS'
   | 'SEAT_SELECTION'
   | 'PAYMENT'
   | 'CONFIRMATION'
+  | 'MY_TICKETS'
+  | 'HELP'
+  | 'CONTACT'
   | 'ACCOUNT_SETTINGS'
+  | 'LOGIN'
+  | 'REGISTER'
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
   | 'OPERATOR_BUSES'
@@ -20,79 +20,86 @@ export type Page =
   | 'OPERATOR_REPORTS'
   | 'OPERATOR_SETTINGS';
 
-export interface User {
+export type NotificationPreferences = {
+  promotions: boolean;
+  reminders: boolean;
+  confirmations: boolean;
+};
+
+export type PaymentMethod = {
+  id: string;
+  type: 'card' | 'mobile';
+  provider: string; // e.g., 'Visa', 'MTN'
+  last4: string;
+};
+
+export type User = {
   id: string;
   name: string;
   email: string;
   type: 'passenger' | 'operator';
-  profilePic?: string;
-  phone?: string;
-  dob?: string;
-}
+  profilePicture?: string;
+  notifications: NotificationPreferences;
+  paymentMethods: PaymentMethod[];
+};
 
-export interface Operator {
+export type Operator = {
   id: string;
   name: string;
-  logo: ReactNode;
-}
+  logo: React.ReactNode;
+};
 
-export interface Seat {
-    id: string;
-    status: 'available' | 'booked';
-}
-
-export interface BusRoute {
+export type Seat = {
   id: string;
-  operator: Operator;
+  status: 'available' | 'booked';
+};
+
+export type Stop = {
+  name: string;
+  time: string;
+};
+
+export type BusRoute = {
+  id: string;
   from: string;
   to: string;
   departureTime: string;
   arrivalTime: string;
   duration: string;
   price: number;
-  type: 'Express' | 'Luxury' | 'Budget';
-  amenities: string[];
+  operator: Operator;
   seats: Seat[];
-  stops: { name: string; time: string; }[];
-}
+  stops: Stop[];
+  amenities: string[];
+  type: 'Express' | 'Luxury' | 'Budget';
+};
 
-export interface Ticket {
+export type Ticket = {
   id: string;
   route: BusRoute;
-  passengerName: string;
   date: string;
+  status: 'ACTIVE' | 'COMPLETED';
+  seats: string[];
+};
+
+export type Booking = {
+  route: BusRoute | null;
   seats: string[];
   totalPrice: number;
-  status: 'COMPLETED' | 'ACTIVE';
-}
+};
 
-export interface FAQ {
-    question: string;
-    answer: string;
-}
-
-export interface Bus {
+export type Bus = {
   id: string;
-  model: string;
   plateNumber: string;
+  model: string;
   capacity: number;
-  amenities: string[];
-  status: 'Active' | 'Under Maintenance';
-}
+  status: 'Active' | 'Maintenance' | 'Inactive';
+};
 
-export interface Schedule {
-    id: string;
-    route: { from: string; to: string };
-    bus: Bus;
-    departureTime: string;
-    arrivalTime: string;
-    status: 'Active' | 'Inactive';
-}
-
-export interface Feedback {
-    id: string;
-    type: 'Problem' | 'Idea' | 'General';
-    description: string;
-    date: string;
-    icon: ReactNode;
-}
+export type Schedule = {
+  id: string;
+  route: { from: string, to: string };
+  bus: Bus;
+  departureTime: string;
+  status: 'Active' | 'Cancelled';
+};
