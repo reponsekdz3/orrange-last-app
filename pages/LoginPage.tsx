@@ -8,7 +8,7 @@ const UserIcon = () => <svg className="w-5 h-5 text-gray-400" fill="none" viewBo
 export const LoginPage: React.FC<{ isRegister: boolean }> = ({ isRegister }) => {
     const [isRegisterView, setIsRegisterView] = useState(isRegister);
     const [showPassword, setShowPassword] = useState(false);
-    const { login } = useContext(AppContext);
+    const { login, setPage } = useContext(AppContext);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -63,7 +63,7 @@ export const LoginPage: React.FC<{ isRegister: boolean }> = ({ isRegister }) => 
                                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">Remember me</label>
                                 </>}
                             </div>
-                            {!isRegisterView && <a href="#" className="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot Password?</a>}
+                            {!isRegisterView && <button type="button" onClick={() => setPage('FORGOT_PASSWORD')} className="text-sm font-medium text-orange-600 hover:text-orange-500">Forgot Password?</button>}
                         </div>
 
                         <button type="submit" className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-transform transform hover:scale-105">

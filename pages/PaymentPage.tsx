@@ -2,15 +2,30 @@ import React, { useState, useContext } from 'react';
 import { Page } from '../types';
 import { AppContext } from '../App';
 
-type PaymentMethod = 'card' | 'mobile';
+type PaymentMethod = 'card' | 'mobile' | 'wallet';
 
 export const PaymentPage: React.FC = () => {
-    const { setPage, booking, user } = useContext(AppContext);
+    const { setPage, booking, user, updateWalletBalance, showToast } = useContext(AppContext);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
     if (!booking.route || booking.seats.length === 0) {
         return <div className="p-8 text-center">Invalid booking details. Please start again.</div>;
     }
+    
+    if (!user) {
+        return <div className="p-8 text-center">Please log in to proceed with payment.</div>;
+    }
+
+    const handlePayment = () => {
+        if (paymentMethod === 'wallet') {
+            if (user.walletBalance < booking.totalPrice) {
+                showToast('Insufficient wallet balance.', 'error');
+                return;
+            }
+            updateWalletBalance(-booking.totalPrice);
+        }
+        setPage('CONFIRMATION');
+    };
     
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -39,16 +54,21 @@ export const PaymentPage: React.FC = () => {
                     <h3 className="font-bold text-xl mb-4 text-gray-800">Payment Method</h3>
                     <p className="text-gray-500 mb-4">Select a Method</p>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <button 
                             onClick={() => setPaymentMethod('card')}
-                            className={`p-4 border rounded-lg flex flex-col items-center justify-center transition-all ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
-                            <span className="font-semibold text-gray-700">Credit/Debit Card</span>
+                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'card' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
+                            <span className="font-semibold text-sm text-gray-700">Card</span>
                         </button>
                         <button 
                             onClick={() => setPaymentMethod('mobile')}
-                            className={`p-4 border rounded-lg flex flex-col items-center justify-center transition-all ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
-                            <span className="font-semibold text-gray-700">Mobile Money</span>
+                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'mobile' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
+                            <span className="font-semibold text-sm text-gray-700">Mobile Money</span>
+                        </button>
+                         <button 
+                            onClick={() => setPaymentMethod('wallet')}
+                            className={`p-4 border rounded-lg flex items-center justify-center transition-all ${paymentMethod === 'wallet' ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'}`}>
+                            <span className="font-semibold text-sm text-gray-700">Wallet</span>
                         </button>
                     </div>
 
@@ -82,10 +102,24 @@ export const PaymentPage: React.FC = () => {
                              <p className="text-xs text-gray-500 mt-2">You will receive a prompt on your phone to approve the payment.</p>
                         </div>
                     )}
+
+                    {paymentMethod === 'wallet' && (
+                        <div className="bg-orange-50 p-4 rounded-lg text-center">
+                            <p className="text-sm font-semibold text-orange-700">AVAILABLE BALANCE</p>
+                            <p className="text-2xl font-bold text-orange-600 mb-2">RWF {user.walletBalance.toLocaleString()}</p>
+                             {user.walletBalance < booking.totalPrice && (
+                                 <div className="text-red-600 text-sm">
+                                     <p>Insufficient balance.</p>
+                                     <button onClick={() => setPage('ACCOUNT_SETTINGS')} className="font-bold underline">Deposit Funds</button>
+                                 </div>
+                             )}
+                        </div>
+                    )}
                     
                     <button 
-                        onClick={() => setPage('CONFIRMATION')}
-                        className="w-full mt-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 transition-colors">
+                        onClick={handlePayment}
+                        disabled={paymentMethod === 'wallet' && user.walletBalance < booking.totalPrice}
+                        className="w-full mt-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                         Confirm & Pay RWF {booking.totalPrice.toLocaleString()}
                     </button>
                 </div>

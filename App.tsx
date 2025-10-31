@@ -16,6 +16,7 @@ import { PaymentPage } from './pages/PaymentPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { NetworkMapPage } from './pages/NetworkMapPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 
 // Operator pages
 import { OperatorDashboard } from './pages/OperatorDashboard';
@@ -30,13 +31,14 @@ interface AppContextType {
   page: Page;
   setPage: (page: Page) => void;
   user: User | null;
-  login: (user: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods'>) => void;
+  login: (user: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods' | 'walletBalance'>) => void;
   logout: () => void;
   selectedRoute: BusRoute | null;
   setSelectedRoute: (route: BusRoute | null) => void;
   booking: Booking;
   setBooking: (booking: Booking) => void;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
+  updateWalletBalance: (amount: number) => void;
 }
 
 export const AppContext = createContext<AppContextType>({} as AppContextType);
@@ -48,10 +50,11 @@ const App: React.FC = () => {
   const [booking, setBooking] = useState<Booking>({ route: null, seats: [], totalPrice: 0 });
   const [toast, setToast] = useState<ToastMessage>(null);
 
-  const login = (userData: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods'>) => {
+  const login = (userData: Omit<User, 'profilePicture' | 'notifications' | 'paymentMethods' | 'walletBalance'>) => {
     const fullUserData: User = {
         ...userData,
         profilePicture: '',
+        walletBalance: 5000, // Default wallet balance for demo
         notifications: {
             promotions: true,
             reminders: true,
@@ -75,20 +78,18 @@ const App: React.FC = () => {
   const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToast({ message, type });
   };
-
+  
+  const updateWalletBalance = (amount: number) => {
+    if (user) {
+        setUser({ ...user, walletBalance: user.walletBalance + amount });
+    }
+  };
 
   const appContextValue: AppContextType = {
     page,
     setPage: (newPage: Page) => {
         window.scrollTo(0, 0);
-        if (newPage === 'LOGIN') {
-            setPage('LOGIN');
-        } else if (newPage === 'REGISTER') {
-            setPage('REGISTER');
-        }
-        else {
-            setPage(newPage);
-        }
+        setPage(newPage);
     },
     user,
     login,
@@ -98,6 +99,7 @@ const App: React.FC = () => {
     booking,
     setBooking,
     showToast,
+    updateWalletBalance,
   };
 
   const isOperatorView = user?.type === 'operator' && [
@@ -120,6 +122,7 @@ const App: React.FC = () => {
       case 'CONTACT': return <ContactPage />;
       case 'LOGIN': return <LoginPage isRegister={false} />;
       case 'REGISTER': return <LoginPage isRegister={true} />;
+      case 'FORGOT_PASSWORD': return <ForgotPasswordPage />;
       case 'ACCOUNT_SETTINGS': return <AccountSettingsPage />;
       case 'ROUTE_STOPS': return <RouteStopsPage />;
       case 'SEAT_SELECTION': return <SeatSelectionPage />;

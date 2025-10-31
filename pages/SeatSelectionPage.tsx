@@ -14,7 +14,7 @@ const Seat: React.FC<{ number?: string; status: 'available' | 'booked' | 'select
             statusClasses = 'bg-orange-200 text-orange-600 cursor-not-allowed relative overflow-hidden';
             break;
         case 'selected':
-            statusClasses = 'bg-green-500 text-white shadow-lg ring-2 ring-white';
+            statusClasses = 'bg-green-500 text-white shadow-lg ring-2 ring-white scale-110';
             break;
     }
 

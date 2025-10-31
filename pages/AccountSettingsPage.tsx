@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
 
-type SettingsPage = 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT';
+type SettingsPage = 'PERSONAL' | 'PASSWORD' | 'NOTIFICATIONS' | 'PAYMENT' | 'WALLET';
 
 const SettingsNavItem: React.FC<{label: string; page: SettingsPage; activePage: SettingsPage; setPage: (page: SettingsPage) => void;}> = 
 ({ label, page, activePage, setPage }) => (
@@ -22,10 +22,51 @@ const Toggle: React.FC<{label: string; enabled: boolean; setEnabled: (enabled: b
     </div>
 );
 
+const DepositModal: React.FC<{onClose: () => void;}> = ({onClose}) => {
+    const { updateWalletBalance, showToast } = useContext(AppContext);
+    const [amount, setAmount] = useState('');
+
+    const handleDeposit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const depositAmount = parseFloat(amount);
+        if (depositAmount > 0) {
+            updateWalletBalance(depositAmount);
+            showToast(`RWF ${depositAmount.toLocaleString()} successfully added to your wallet.`, 'success');
+            onClose();
+        } else {
+            showToast('Please enter a valid amount.', 'error');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-sm w-full">
+                <h3 className="font-bold text-xl mb-4 text-gray-800">Deposit Funds</h3>
+                <p className="text-gray-500 mb-6">Enter the amount you wish to deposit from your MTN Mobile Money account.</p>
+                <form onSubmit={handleDeposit} className="space-y-4">
+                    <div>
+                        <label className="text-sm font-medium text-gray-600">Amount (RWF)</label>
+                        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g., 10000" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-600">Phone Number</label>
+                        <input type="tel" placeholder="0788..." className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
+                    </div>
+                    <div className="flex justify-end space-x-3 pt-4">
+                        <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button type="submit" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">Confirm Deposit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 
 export const AccountSettingsPage: React.FC = () => {
     const { user } = useContext(AppContext);
     const [activePage, setActivePage] = useState<SettingsPage>('PERSONAL');
+    const [showDepositModal, setShowDepositModal] = useState(false);
 
     if (!user) {
         return <div className="p-8 text-center">Please log in to view your account settings.</div>;
@@ -116,12 +157,27 @@ export const AccountSettingsPage: React.FC = () => {
                         </div>
                     </div>
                 );
+            case 'WALLET':
+                return (
+                    <div>
+                        <h3 className="font-bold text-xl mb-2 text-gray-800">My Wallet</h3>
+                        <p className="text-gray-500 mb-6">View your balance and deposit funds.</p>
+                        <div className="bg-orange-50 p-6 rounded-lg text-center mb-6">
+                            <p className="text-sm font-semibold text-orange-700">CURRENT BALANCE</p>
+                            <p className="text-4xl font-bold text-orange-600">RWF {user.walletBalance.toLocaleString()}</p>
+                        </div>
+                        <button onClick={() => setShowDepositModal(true)} className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600">
+                            Deposit Funds
+                        </button>
+                    </div>
+                );
         }
     };
 
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {showDepositModal && <DepositModal onClose={() => setShowDepositModal(false)} />}
             <h1 className="text-3xl font-bold text-gray-800 mb-8">Account Settings</h1>
             <div className="grid lg:grid-cols-4 gap-8">
                 <aside className="lg:col-span-1 space-y-2">
@@ -129,6 +185,7 @@ export const AccountSettingsPage: React.FC = () => {
                     <SettingsNavItem label="Change Password" page="PASSWORD" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Notifications" page="NOTIFICATIONS" activePage={activePage} setPage={setActivePage} />
                     <SettingsNavItem label="Payment Methods" page="PAYMENT" activePage={activePage} setPage={setActivePage} />
+                    <SettingsNavItem label="Wallet" page="WALLET" activePage={activePage} setPage={setActivePage} />
                 </aside>
                 <main className="lg:col-span-3 bg-white p-8 rounded-2xl shadow-md">
                    {renderContent()}

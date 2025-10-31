@@ -15,6 +15,7 @@ export type Page =
   | 'ACCOUNT_SETTINGS'
   | 'LOGIN'
   | 'REGISTER'
+  | 'FORGOT_PASSWORD'
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
   | 'OPERATOR_BUSES'
@@ -43,6 +44,7 @@ export type User = {
   profilePicture?: string;
   notifications: NotificationPreferences;
   paymentMethods: PaymentMethod[];
+  walletBalance: number;
 };
 
 export type Operator = {
