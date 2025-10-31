@@ -1,12 +1,19 @@
+import React, { useContext } from 'react';
+import { Page } from '../types';
+import { AppContext } from '../App';
 
-import React from 'react';
+const NavItem: React.FC<{ icon: React.ReactNode; label: string; page: Page; }> = ({ icon, label, page }) => {
+    const { page: currentPage, setPage } = useContext(AppContext);
+    const isActive = currentPage === page;
 
-const NavItem: React.FC<{ icon: React.ReactNode; label: string; isActive?: boolean }> = ({ icon, label, isActive }) => (
-    <a href="#" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-orange-100'}`}>
-        {icon}
-        <span className="ml-3 font-semibold">{label}</span>
-    </a>
-);
+    return (
+        <button onClick={() => setPage(page)} className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-orange-100'}`}>
+            {icon}
+            <span className="ml-3 font-semibold">{label}</span>
+        </button>
+    );
+};
+
 
 const DashboardIcon = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>;
 const RoutesIcon = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>;
@@ -21,16 +28,16 @@ export const OperatorSidebar: React.FC = () => {
         <aside className="w-64 bg-white shadow-md flex-shrink-0 hidden lg:block">
             <div className="p-6">
                 <div className="relative mb-6">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     <input type="text" placeholder="Search..." className="w-full h-10 pl-10 rounded-lg bg-gray-100 border-transparent focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <nav className="space-y-2">
-                    <NavItem icon={<DashboardIcon />} label="Dashboard" isActive />
-                    <NavItem icon={<RoutesIcon />} label="Routes" />
-                    <NavItem icon={<BusesIcon />} label="Buses" />
-                    <NavItem icon={<SchedulesIcon />} label="Schedules" />
-                    <NavItem icon={<ReportsIcon />} label="Reports" />
-                    <NavItem icon={<SettingsIcon />} label="Settings" />
+                    <NavItem icon={<DashboardIcon />} label="Dashboard" page="OPERATOR_DASHBOARD" />
+                    <NavItem icon={<RoutesIcon />} label="Routes" page="OPERATOR_ROUTES" />
+                    <NavItem icon={<BusesIcon />} label="Buses" page="OPERATOR_BUSES" />
+                    <NavItem icon={<SchedulesIcon />} label="Schedules" page="OPERATOR_SCHEDULES" />
+                    <NavItem icon={<ReportsIcon />} label="Reports" page="OPERATOR_REPORTS" />
+                    <NavItem icon={<SettingsIcon />} label="Settings" page="OPERATOR_SETTINGS" />
                 </nav>
             </div>
         </aside>

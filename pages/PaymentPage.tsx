@@ -1,33 +1,37 @@
-
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Page } from '../types';
-import { OnatracomIcon } from '../constants';
+import { AppContext } from '../App';
 
 type PaymentMethod = 'card' | 'mobile';
 
-export const PaymentPage: React.FC<{ setPage: (page: Page) => void }> = ({ setPage }) => {
+export const PaymentPage: React.FC = () => {
+    const { setPage, booking, user } = useContext(AppContext);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+
+    if (!booking.route || booking.seats.length === 0) {
+        return <div className="p-8 text-center">Invalid booking details. Please start again.</div>;
+    }
     
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Secure Payment</h1>
             <div className="w-20 h-1 bg-orange-500 rounded-full mb-8"></div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
                 <div className="bg-white p-8 rounded-2xl shadow-md">
                     <h3 className="font-bold text-xl mb-4 text-gray-800 text-center">Booking Summary</h3>
                     <div className="flex justify-center mb-6">
-                        <OnatracomIcon className="w-16 h-16"/>
+                        <div className="w-16 h-16">{booking.route.operator.logo}</div>
                     </div>
-                    <p className="text-center font-bold text-2xl text-gray-800 mb-6">ONATRACOM</p>
+                    <p className="text-center font-bold text-2xl text-gray-800 mb-6">{booking.route.operator.name}</p>
                     <div className="space-y-3 text-lg text-gray-700">
-                        <p><span className="font-semibold">ROUTE:</span> Kigali &gt; Rubavu</p>
-                        <p><span className="font-semibold">Date:</span> 2</p>
-                        <p><span className="font-semibold">Departure:</span> 7:00 AM</p>
-                        <p><span className="font-semibold">Selected Seats:</span> 12A, 12B</p>
-                        <p><span className="font-semibold">TIME:</span> 7:20 AM - 8:00 AM</p>
+                        <p><span className="font-semibold">PASSENGER:</span> {user?.name || 'Guest'}</p>
+                        <p><span className="font-semibold">ROUTE:</span> {booking.route.from} &gt; {booking.route.to}</p>
+                        <p><span className="font-semibold">Date:</span> {new Date().toLocaleDateString()}</p>
+                        <p><span className="font-semibold">Departure:</span> {booking.route.departureTime}</p>
+                        <p><span className="font-semibold">Selected Seats:</span> {booking.seats.join(', ')}</p>
                         <div className="border-t my-4"></div>
-                        <p className="font-bold text-2xl text-gray-800">Total Price: RWF 17,000</p>
+                        <p className="font-bold text-2xl text-gray-800">Total Price: RWF {booking.totalPrice.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -50,6 +54,10 @@ export const PaymentPage: React.FC<{ setPage: (page: Page) => void }> = ({ setPa
 
                     {paymentMethod === 'card' && (
                         <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-600">Cardholder Name</label>
+                                <input type="text" defaultValue={user?.name} className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
+                            </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-600">Card Number</label>
                                 <input type="text" placeholder="xxxx xxxx xxxx xxxx" className="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500"/>
@@ -78,7 +86,7 @@ export const PaymentPage: React.FC<{ setPage: (page: Page) => void }> = ({ setPa
                     <button 
                         onClick={() => setPage('CONFIRMATION')}
                         className="w-full mt-8 py-4 bg-orange-500 text-white font-bold text-lg rounded-lg hover:bg-orange-600 transition-colors">
-                        Confirm & Pay RWF 17,000
+                        Confirm & Pay RWF {booking.totalPrice.toLocaleString()}
                     </button>
                 </div>
             </div>

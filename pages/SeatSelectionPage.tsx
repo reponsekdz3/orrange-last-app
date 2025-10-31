@@ -1,62 +1,68 @@
-
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Page } from '../types';
-import { OnatracomIcon } from '../constants';
+import { AppContext } from '../App';
 
 const Seat: React.FC<{ number?: string; status: 'available' | 'booked' | 'selected'; onClick: () => void }> = ({ number, status, onClick }) => {
-    const baseClasses = "w-10 h-10 md:w-12 md:h-12 rounded-md flex items-center justify-center font-bold text-sm cursor-pointer transition-colors";
+    const baseClasses = "w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center font-bold text-xs cursor-pointer transition-all duration-200 transform hover:scale-105";
     
     let statusClasses = '';
     switch (status) {
         case 'available':
-            statusClasses = 'bg-gray-200 text-gray-600 hover:bg-orange-200';
+            statusClasses = 'bg-gray-200 text-gray-700 hover:bg-orange-200';
             break;
         case 'booked':
-            statusClasses = 'bg-orange-400 text-white cursor-not-allowed';
+            statusClasses = 'bg-orange-200 text-orange-600 cursor-not-allowed relative overflow-hidden';
             break;
         case 'selected':
-            statusClasses = 'bg-green-500 text-white';
+            statusClasses = 'bg-green-500 text-white shadow-lg ring-2 ring-white';
             break;
     }
 
     return (
         <div onClick={onClick} className={`${baseClasses} ${statusClasses}`}>
+            {status === 'booked' && <div className="absolute w-full h-0.5 bg-orange-400 transform rotate-45"></div>}
             {number}
         </div>
     );
 };
 
 
-export const SeatSelectionPage: React.FC<{ setPage: (page: Page) => void }> = ({ setPage }) => {
-    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-    const seatPrice = 8500;
+export const SeatSelectionPage: React.FC = () => {
+    const { setPage, selectedRoute, booking, setBooking } = useContext(AppContext);
     
-    const initialSeats = [
-        { id: '1A', status: 'available' }, { id: '1B', status: 'available' }, { id: '1C', status: 'booked' }, { id: '1D', status: 'available' },
-        { id: '2A', status: 'booked' }, { id: '2B', status: 'available' }, { id: '2C', status: 'available' }, { id: '2D', status: 'booked' },
-        { id: '3A', status: 'available' }, { id: '3B', status: 'available' }, { id: '3C', status: 'available' }, { id: '3D', status: 'available' },
-    ];
+    if (!selectedRoute) {
+        return <div className="p-8 text-center">No route selected. Please go back and select a route.</div>;
+    }
+
+    const [selectedSeats, setSelectedSeats] = useState<string[]>(booking.seats);
     
     const toggleSeat = (seatId: string) => {
-        const isBooked = initialSeats.find(s => s.id === seatId)?.status === 'booked';
+        const isBooked = selectedRoute.seats.find(s => s.id === seatId)?.status === 'booked';
         if (isBooked) return;
 
-        setSelectedSeats(prev => 
-            prev.includes(seatId) ? prev.filter(s => s !== seatId) : [...prev, seatId]
-        );
+        const newSelectedSeats = selectedSeats.includes(seatId) 
+            ? selectedSeats.filter(s => s !== seatId) 
+            : [...selectedSeats, seatId];
+        
+        setSelectedSeats(newSelectedSeats);
     };
+
+    const handleProceed = () => {
+        setBooking({ route: selectedRoute, seats: selectedSeats, totalPrice: selectedSeats.length * selectedRoute.price });
+        setPage('PAYMENT');
+    }
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Select Your Seat</h1>
             <div className="w-20 h-1 bg-orange-500 rounded-full mb-8"></div>
             
-            <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md">
-                   <div className="bg-gray-100 p-4 rounded-xl mx-auto max-w-sm">
+            <div className="grid lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md flex justify-center">
+                   <div className="bg-gray-100 p-4 sm:p-6 rounded-xl">
                         <div className="bg-gray-300 h-12 rounded-t-lg mb-6 flex items-center justify-center font-bold text-gray-600">FRONT</div>
                         <div className="grid grid-cols-4 gap-2 md:gap-4">
-                            {initialSeats.map(seat => (
+                            {selectedRoute.seats.map(seat => (
                                 <Seat 
                                     key={seat.id}
                                     number={seat.id}
@@ -66,31 +72,30 @@ export const SeatSelectionPage: React.FC<{ setPage: (page: Page) => void }> = ({
                             ))}
                         </div>
                    </div>
-                    <div className="flex justify-center space-x-6 mt-6">
-                        <div className="flex items-center"><div className="w-4 h-4 rounded bg-gray-200 mr-2"></div><span className="text-sm">Available</span></div>
-                        <div className="flex items-center"><div className="w-4 h-4 rounded bg-orange-400 mr-2"></div><span className="text-sm">Booked</span></div>
-                        <div className="flex items-center"><div className="w-4 h-4 rounded bg-green-500 mr-2"></div><span className="text-sm">Selected</span></div>
+                    <div className="flex flex-col justify-center space-y-4 ml-8">
+                        <div className="flex items-center"><div className="w-5 h-5 rounded bg-gray-200 mr-2 border"></div><span className="text-sm">Available</span></div>
+                        <div className="flex items-center"><div className="w-5 h-5 rounded bg-orange-200 mr-2 border relative"><div className="absolute w-full h-0.5 bg-orange-400 transform rotate-45 top-1/2 left-0"></div></div><span className="text-sm">Booked</span></div>
+                        <div className="flex items-center"><div className="w-5 h-5 rounded bg-green-500 mr-2 border"></div><span className="text-sm">Selected</span></div>
                     </div>
                 </div>
                 
-                <div className="bg-white p-6 rounded-2xl shadow-md self-start">
+                <div className="bg-white p-6 rounded-2xl shadow-md self-start sticky top-28">
                     <h3 className="font-bold text-lg mb-4 text-gray-800">Booking Summary</h3>
                     <div className="flex items-center mb-4">
-                        <OnatracomIcon className="w-12 h-12" />
-                        <span className="ml-3 font-bold text-gray-800">ONATRACOM</span>
+                        <div className="w-12 h-12">{selectedRoute.operator.logo}</div>
+                        <span className="ml-3 font-bold text-gray-800">{selectedRoute.operator.name}</span>
                     </div>
                     <div className="space-y-2 text-gray-700">
-                        <p><span className="font-semibold">ROUTE:</span> Kigali &gt; Rubavu</p>
-                        <p><span className="font-semibold">Date:</span> 2</p>
-                        <p><span className="font-semibold">Departure:</span> 7:00 AM</p>
-                        <p><span className="font-semibold">Selected Seats:</span> {selectedSeats.join(', ') || 'None'}</p>
-                        <p><span className="font-semibold">TIME:</span> 7:20 AM - 8:00 AM</p>
+                        <p><span className="font-semibold">ROUTE:</span> {selectedRoute.from} &gt; {selectedRoute.to}</p>
+                        <p><span className="font-semibold">Date:</span> {new Date().toLocaleDateString()}</p>
+                        <p><span className="font-semibold">Departure:</span> {selectedRoute.departureTime}</p>
+                        <p><span className="font-semibold">Selected Seats:</span> <span className="font-bold text-orange-600">{selectedSeats.join(', ') || 'None'}</span></p>
                     </div>
                     <div className="border-t my-4"></div>
-                    <p className="font-bold text-xl text-gray-800">Total Price: RWF {(selectedSeats.length * seatPrice).toLocaleString()}</p>
+                    <p className="font-bold text-xl text-gray-800">Total Price: RWF {(selectedSeats.length * selectedRoute.price).toLocaleString()}</p>
 
                     <button 
-                      onClick={() => setPage('PAYMENT')}
+                      onClick={handleProceed}
                       disabled={selectedSeats.length === 0}
                       className="w-full mt-6 py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                         Proceed to Payment
