@@ -8,10 +8,11 @@ export type Page =
   | 'CONTACT'
   | 'LOGIN'
   | 'REGISTER'
-  | 'ROUTE_DETAILS'
+  | 'ROUTE_STOPS'
   | 'SEAT_SELECTION'
   | 'PAYMENT'
   | 'CONFIRMATION'
+  | 'ACCOUNT_SETTINGS'
   | 'OPERATOR_DASHBOARD'
   | 'OPERATOR_ROUTES'
   | 'OPERATOR_BUSES'
@@ -24,6 +25,9 @@ export interface User {
   name: string;
   email: string;
   type: 'passenger' | 'operator';
+  profilePic?: string;
+  phone?: string;
+  dob?: string;
 }
 
 export interface Operator {
@@ -49,6 +53,7 @@ export interface BusRoute {
   type: 'Express' | 'Luxury' | 'Budget';
   amenities: string[];
   seats: Seat[];
+  stops: { name: string; time: string; }[];
 }
 
 export interface Ticket {
@@ -64,4 +69,30 @@ export interface Ticket {
 export interface FAQ {
     question: string;
     answer: string;
+}
+
+export interface Bus {
+  id: string;
+  model: string;
+  plateNumber: string;
+  capacity: number;
+  amenities: string[];
+  status: 'Active' | 'Under Maintenance';
+}
+
+export interface Schedule {
+    id: string;
+    route: { from: string; to: string };
+    bus: Bus;
+    departureTime: string;
+    arrivalTime: string;
+    status: 'Active' | 'Inactive';
+}
+
+export interface Feedback {
+    id: string;
+    type: 'Problem' | 'Idea' | 'General';
+    description: string;
+    date: string;
+    icon: ReactNode;
 }

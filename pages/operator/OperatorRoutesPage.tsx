@@ -1,6 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+const routesData = [
+    { id: 'R1', name: 'Kigali > Rubavu', bookings: 150, revenue: '1.2M', status: 'Active' },
+    { id: 'R2', name: 'Kigali > Huye', bookings: 210, revenue: '950k', status: 'Active' },
+    { id: 'R3', name: 'Kigali > Musanze', bookings: 80, revenue: '280k', status: 'Pending' },
+    { id: 'R4', name: 'Rubavu > Huye', bookings: 0, revenue: '0', status: 'Inactive' },
+];
+
+type Status = 'All' | 'Active' | 'Pending' | 'Inactive';
 
 export const OperatorRoutesPage: React.FC = () => {
+    const [statusFilter, setStatusFilter] = useState<Status>('All');
+
+    const filteredRoutes = routesData.filter(route => 
+        statusFilter === 'All' || route.status === statusFilter
+    );
+
+    const getStatusClass = (status: string) => {
+        switch (status) {
+            case 'Active': return 'text-green-600 bg-green-100';
+            case 'Pending': return 'text-yellow-600 bg-yellow-100';
+            case 'Inactive': return 'text-red-600 bg-red-100';
+            default: return 'text-gray-600 bg-gray-100';
+        }
+    };
+
     return (
         <main className="flex-1 p-6 sm:p-8">
             <div className="flex justify-between items-center mb-6">
@@ -16,7 +40,22 @@ export const OperatorRoutesPage: React.FC = () => {
 
             <div className="grid lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md">
-                    <h3 className="font-bold text-lg mb-4 text-gray-800">All Routes</h3>
+                     <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-lg text-gray-800">All Routes</h3>
+                        <div className="flex items-center space-x-2">
+                            <label className="text-sm font-medium">Status:</label>
+                            <select 
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value as Status)}
+                                className="p-1.5 border border-gray-200 rounded-md bg-gray-50 text-sm"
+                            >
+                                <option>All</option>
+                                <option>Active</option>
+                                <option>Pending</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -24,19 +63,29 @@ export const OperatorRoutesPage: React.FC = () => {
                                     <th className="p-3"><input type="checkbox" /></th>
                                     <th className="p-3">Route</th>
                                     <th className="p-3">Bookings</th>
-                                    <th className="p-3">Revenue</th>
+                                    <th className="p-3">Revenue (RWF)</th>
                                     <th className="p-3">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="border-b"><td className="p-3"><input type="checkbox" /></td><td className="p-3 font-semibold text-gray-800">Kigali &gt; Rubavu</td><td className="p-3">150</td><td className="p-3">RWF 1.2M</td><td className="p-3 text-green-500">Active</td></tr>
-                                <tr className="border-b"><td className="p-3"><input type="checkbox" /></td><td className="p-3 font-semibold text-gray-800">Kigali &gt; Huye</td><td className="p-3">210</td><td className="p-3">RWF 950k</td><td className="p-3 text-green-500">Active</td></tr>
-                                <tr className="border-b"><td className="p-3"><input type="checkbox" /></td><td className="p-3 font-semibold text-gray-800">Kigali &gt; Musanze</td><td className="p-3">80</td><td className="p-3">RWF 280k</td><td className="p-3 text-yellow-500">Pending</td></tr>
+                                {filteredRoutes.map(route => (
+                                    <tr key={route.id} className="border-b hover:bg-gray-50">
+                                        <td className="p-3"><input type="checkbox" /></td>
+                                        <td className="p-3 font-semibold text-gray-800">{route.name}</td>
+                                        <td className="p-3">{route.bookings}</td>
+                                        <td className="p-3">{route.revenue}</td>
+                                        <td className="p-3">
+                                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(route.status)}`}>
+                                                {route.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
+                <div className="bg-white p-6 rounded-2xl shadow-md space-y-4 sticky top-28">
                      <h3 className="font-bold text-lg text-gray-800">Set Prices & Amenities</h3>
                      <div>
                         <label className="text-sm font-medium text-gray-600">Select Route</label>

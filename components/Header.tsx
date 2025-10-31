@@ -54,6 +54,7 @@ export const Header: React.FC = () => {
               {user && <NavLink label="MY TICKETS" page="MY_TICKETS" />}
               <NavLink label="HELP" page="HELP" />
               <NavLink label="CONTACT" page="CONTACT" />
+               {user && <NavLink label="ACCOUNT" page="ACCOUNT_SETTINGS" />}
             </nav>
           )}
 

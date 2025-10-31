@@ -14,6 +14,13 @@ import { LoginPage } from './pages/LoginPage';
 import { OperatorDashboard } from './pages/OperatorDashboard';
 import { OperatorRoutesPage } from './pages/operator/OperatorRoutesPage';
 import { OperatorSidebar } from './components/OperatorSidebar';
+import { AccountSettingsPage } from './pages/AccountSettingsPage';
+import { RouteStopsPage } from './pages/RouteStopsPage';
+import { OperatorBusesPage } from './pages/operator/OperatorBusesPage';
+import { OperatorSchedulesPage } from './pages/operator/OperatorSchedulesPage';
+import { OperatorReportsPage } from './pages/operator/OperatorReportsPage';
+import { OperatorSettingsPage } from './pages/operator/OperatorSettingsPage';
+
 
 interface Booking {
   route: BusRoute | null;
@@ -80,20 +87,21 @@ const PageRenderer: React.FC = () => {
         case 'HOME': return <HomePage />;
         case 'FIND_BUS': return <FindBusPage />;
         case 'MY_TICKETS': return <MyTicketsPage />;
+        case 'ROUTE_STOPS': return <RouteStopsPage />;
         case 'SEAT_SELECTION': return <SeatSelectionPage />;
         case 'PAYMENT': return <PaymentPage />;
         case 'CONFIRMATION': return <ConfirmationPage />;
         case 'HELP': return <HelpPage />;
         case 'CONTACT': return <ContactPage />;
+        case 'ACCOUNT_SETTINGS': return <AccountSettingsPage />;
         case 'LOGIN': return <LoginPage isRegister={false} />;
         case 'REGISTER': return <LoginPage isRegister={true} />;
         case 'OPERATOR_DASHBOARD': return <OperatorDashboard />;
         case 'OPERATOR_ROUTES': return <OperatorRoutesPage />;
-        case 'OPERATOR_BUSES':
-        case 'OPERATOR_SCHEDULES':
-        case 'OPERATOR_REPORTS':
-        case 'OPERATOR_SETTINGS':
-            return <div className="p-8"><h1 className="text-2xl font-bold">{page.replace('OPERATOR_', '')} Page - Coming Soon!</h1></div>;
+        case 'OPERATOR_BUSES': return <OperatorBusesPage />;
+        case 'OPERATOR_SCHEDULES': return <OperatorSchedulesPage />;
+        case 'OPERATOR_REPORTS': return <OperatorReportsPage />;
+        case 'OPERATOR_SETTINGS': return <OperatorSettingsPage />;
         default: return <HomePage />;
     }
 };
