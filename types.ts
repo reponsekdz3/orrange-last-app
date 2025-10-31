@@ -4,6 +4,7 @@ export type Page =
   | 'HOME'
   | 'FIND_BUS'
   | 'SERVICES'
+  | 'NETWORK_MAP'
   | 'ROUTE_STOPS'
   | 'SEAT_SELECTION'
   | 'PAYMENT'

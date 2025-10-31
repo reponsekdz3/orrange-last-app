@@ -18,7 +18,7 @@ export const RouteStopsPage: React.FC = () => {
                     <div className="bg-white p-6 rounded-2xl shadow-md">
                         <h3 className="font-bold text-lg mb-4 text-gray-800">Route Map</h3>
                         <div className="rounded-lg overflow-hidden h-64 bg-gray-200">
-                             <img src="https://i.imgur.com/3Z7G5tG.png" alt="Map of route from Kigali to Rubavu" className="w-full h-full object-cover"/>
+                             <img src="https://i.imgur.com/tLwLgBw.png" alt="Map of route from Kigali to Rubavu" className="w-full h-full object-cover"/>
                         </div>
                     </div>
                     <div className="bg-white p-6 rounded-2xl shadow-md">

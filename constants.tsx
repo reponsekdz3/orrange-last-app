@@ -160,6 +160,58 @@ export const BUS_ROUTES: BusRoute[] = [
     amenities: ['AC', 'Reclining Seats'],
     type: 'Luxury',
   },
+  {
+    id: '8',
+    from: 'Musanze',
+    to: 'Rubavu',
+    departureTime: '09:00 AM',
+    arrivalTime: '10:30 AM',
+    duration: '1h 30m',
+    price: 2500,
+    operator: OPERATORS[0],
+    seats: generateSeats(12),
+    stops: [
+      { name: 'Musanze Bus Park', time: '09:00 AM' },
+      { name: 'Rubavu Bus Park', time: '10:30 AM' },
+    ],
+    amenities: ['AC'],
+    type: 'Express',
+  },
+  {
+    id: '9',
+    from: 'Kigali',
+    to: 'Rusumo',
+    departureTime: '06:30 AM',
+    arrivalTime: '10:00 AM',
+    duration: '3h 30m',
+    price: 6000,
+    operator: OPERATORS[1],
+    seats: generateSeats(18),
+    stops: [
+      { name: 'Nyabugogo Terminal', time: '06:30 AM' },
+      { name: 'Rusumo Border', time: '10:00 AM' },
+    ],
+    amenities: ['Power Outlets'],
+    type: 'Budget',
+  },
+  {
+    id: '10',
+    from: 'Huye',
+    to: 'Rusizi',
+    departureTime: '13:30 PM',
+    arrivalTime: '17:00 PM',
+    duration: '3h 30m',
+    price: 5500,
+    operator: OPERATORS[2],
+    seats: generateSeats(4),
+    stops: [
+      { name: 'Huye Bus Park', time: '13:30 PM' },
+      { name: 'Nyamagabe', time: '14:30 PM' },
+      { name: 'Rusizi Bus Park', time: '17:00 PM' },
+    ],
+    amenities: ['WiFi', 'AC'],
+    type: 'Express',
+  },
 ];
 
 
@@ -173,6 +225,8 @@ export const OPERATOR_BUSES: Bus[] = [
     { id: 'B1', plateNumber: 'RAA 123 B', model: 'Toyota Coaster', capacity: 28, status: 'Active' },
     { id: 'B2', plateNumber: 'RAB 456 C', model: 'Yutong ZK6122H9', capacity: 49, status: 'Active' },
     { id: 'B3', plateNumber: 'RAC 789 D', model: 'Toyota Coaster', capacity: 28, status: 'Maintenance' },
+    { id: 'B4', plateNumber: 'RAD 101 E', model: 'Yutong ZK6122H9', capacity: 49, status: 'Inactive' },
+    { id: 'B5', plateNumber: 'RAE 202 F', model: 'Toyota Coaster', capacity: 28, status: 'Active' },
 ];
 
 export const OPERATOR_SCHEDULES: Schedule[] = [

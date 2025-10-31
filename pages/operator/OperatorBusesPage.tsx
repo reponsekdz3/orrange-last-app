@@ -2,9 +2,31 @@ import React, { useState } from 'react';
 import { OPERATOR_BUSES } from '../../constants';
 import type { Bus } from '../../types';
 
+type Status = 'All' | 'Active' | 'Maintenance' | 'Inactive';
+
+const FilterButton: React.FC<{ label: string; count: number; active: boolean; onClick: () => void; }> = ({ label, count, active, onClick }) => {
+    let colorClasses = '';
+    if (label === 'Active') colorClasses = 'border-green-500';
+    if (label === 'Maintenance') colorClasses = 'border-yellow-500';
+    if (label === 'Inactive') colorClasses = 'border-red-500';
+
+    return (
+        <button
+            onClick={onClick}
+            className={`px-3 py-1.5 text-sm font-semibold rounded-full flex items-center space-x-2 transition-colors ${
+                active ? `bg-orange-500 text-white` : `bg-white text-gray-700 hover:bg-gray-100 border ${colorClasses || 'border-gray-200'}`
+            }`}
+        >
+            <span>{label}</span>
+            <span className={`px-2 rounded-full text-xs ${active ? 'bg-white/20' : 'bg-gray-200'}`}>{count}</span>
+        </button>
+    );
+};
+
 export const OperatorBusesPage: React.FC = () => {
     const [buses, setBuses] = useState<Bus[]>(OPERATOR_BUSES);
     const [selectedBus, setSelectedBus] = useState<Bus | null>(buses[0] || null);
+    const [statusFilter, setStatusFilter] = useState<Status>('All');
     
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,6 +43,15 @@ export const OperatorBusesPage: React.FC = () => {
             default: return 'text-gray-600 bg-gray-100';
         }
     };
+    
+    const statusCounts = buses.reduce((acc, bus) => {
+        acc[bus.status] = (acc[bus.status] || 0) + 1;
+        return acc;
+    }, {} as Record<Bus['status'], number>);
+
+    const filteredBuses = buses.filter(bus => 
+        statusFilter === 'All' || bus.status === statusFilter
+    );
 
     return (
         <main className="flex-1 p-6 sm:p-8">
@@ -35,6 +66,14 @@ export const OperatorBusesPage: React.FC = () => {
             <div className="grid lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md">
                     <h3 className="font-bold text-lg text-gray-800 mb-4">Bus Fleet</h3>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        <FilterButton label="All" count={buses.length} active={statusFilter === 'All'} onClick={() => setStatusFilter('All')} />
+                        <FilterButton label="Active" count={statusCounts.Active || 0} active={statusFilter === 'Active'} onClick={() => setStatusFilter('Active')} />
+                        <FilterButton label="Maintenance" count={statusCounts.Maintenance || 0} active={statusFilter === 'Maintenance'} onClick={() => setStatusFilter('Maintenance')} />
+                        <FilterButton label="Inactive" count={statusCounts.Inactive || 0} active={statusFilter === 'Inactive'} onClick={() => setStatusFilter('Inactive')} />
+                    </div>
+
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500">
                              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -46,7 +85,7 @@ export const OperatorBusesPage: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {buses.map(bus => (
+                                {filteredBuses.map(bus => (
                                     <tr key={bus.id} onClick={() => setSelectedBus(bus)} className={`border-b hover:bg-orange-50 cursor-pointer transition-colors ${selectedBus?.id === bus.id ? 'bg-orange-50' : ''}`}>
                                         <td className="p-3 font-semibold text-gray-800">{bus.plateNumber}</td>
                                         <td className="p-3">{bus.model}</td>

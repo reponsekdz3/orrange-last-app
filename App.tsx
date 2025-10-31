@@ -14,7 +14,8 @@ import { RouteStopsPage } from './pages/RouteStopsPage';
 import { SeatSelectionPage } from './pages/SeatSelectionPage';
 import { PaymentPage } from './pages/PaymentPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
-import { ServicesPage } from './pages/ServicesPage'; // Import new page
+import { ServicesPage } from './pages/ServicesPage';
+import { NetworkMapPage } from './pages/NetworkMapPage';
 
 // Operator pages
 import { OperatorDashboard } from './pages/OperatorDashboard';
@@ -113,6 +114,7 @@ const App: React.FC = () => {
       case 'HOME': return <HomePage />;
       case 'FIND_BUS': return <FindBusPage />;
       case 'SERVICES': return <ServicesPage />;
+      case 'NETWORK_MAP': return <NetworkMapPage />;
       case 'MY_TICKETS': return <MyTicketsPage />;
       case 'HELP': return <HelpPage />;
       case 'CONTACT': return <ContactPage />;

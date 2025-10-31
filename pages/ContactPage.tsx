@@ -57,7 +57,7 @@ export const ContactPage: React.FC = () => {
                         <p className="text-gray-600">Kigali City Tower, KN 8 St, Kigali, Rwanda</p>
                         <div className="rounded-lg overflow-hidden h-48">
                            <a href="https://www.google.com/maps/place/Kigali+City+Tower" target="_blank" rel="noopener noreferrer">
-                                <img src="https://i.imgur.com/3Z7G5tG.png" alt="Map" className="w-full h-full object-cover"/>
+                                <img src="https://i.imgur.com/gK2D3fU.png" alt="Map" className="w-full h-full object-cover"/>
                            </a>
                         </div>
                         <div className="space-y-3 pt-4">

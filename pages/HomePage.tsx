@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
 import { ImageSlider } from '../components/ImageSlider';
 
@@ -17,17 +17,53 @@ export const HomePage: React.FC = () => {
     const { setPage } = useContext(AppContext);
 
     const sliderImages = [
-        "https://images.unsplash.com/photo-1618472647395-57428801d1c1?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1590184402379-3d44a2826978?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1599690367871-4604fc5513d7?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1603790076041-94d84790b2f9?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop",
     ];
+    
+    const [headline, setHeadline] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [loopNum, setLoopNum] = useState(0);
+    const [typingSpeed, setTypingSpeed] = useState(150);
+
+    const headlines = React.useMemo(() => ["Your Journey, Simplified.", "Discover Rwanda by Bus.", "Safe & Reliable Travel."], []);
+
+    useEffect(() => {
+        const tick = () => {
+            const i = loopNum % headlines.length;
+            const fullText = headlines[i];
+            const updatedText = isDeleting
+                ? fullText.substring(0, headline.length - 1)
+                : fullText.substring(0, headline.length + 1);
+
+            setHeadline(updatedText);
+
+            if (isDeleting) {
+                setTypingSpeed(75);
+            }
+
+            if (!isDeleting && updatedText === fullText) {
+                setIsDeleting(true);
+                setTypingSpeed(2000); // Pause at end
+            } else if (isDeleting && updatedText === '') {
+                setIsDeleting(false);
+                setLoopNum(loopNum + 1);
+                setTypingSpeed(150);
+            }
+        };
+        
+        const ticker = setTimeout(tick, typingSpeed);
+        return () => clearTimeout(ticker);
+
+    }, [headline, isDeleting, loopNum, typingSpeed, headlines]);
 
     return (
         <>
             <section className="relative h-[60vh] md:h-[70vh] text-white text-center flex flex-col justify-center">
                 <ImageSlider images={sliderImages}>
                     <div className="relative z-10 p-4">
-                        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-shadow">Your Journey, Simplified.</h1>
+                        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight text-shadow h-16">{headline}<span className="animate-pulse">|</span></h1>
                         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-shadow">Book bus tickets across Rwanda with ease. Safe, reliable, and convenient travel at your fingertips.</p>
                          <button onClick={() => setPage('FIND_BUS')} className="px-8 py-4 bg-white text-orange-600 font-bold rounded-full text-lg hover:bg-orange-100 transition-colors transform hover:scale-105">
                             Find Your Bus Now

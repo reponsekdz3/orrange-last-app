@@ -29,7 +29,7 @@ export const ServicesPage: React.FC = () => {
                 <div className="w-24 h-1.5 bg-orange-500 rounded-full mx-auto mt-4"></div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-10">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                 <ServiceCard 
                     title="Express" 
                     description="The perfect balance of speed and comfort. Our Express buses are modern, reliable, and get you to your destination efficiently." 
@@ -47,6 +47,12 @@ export const ServicesPage: React.FC = () => {
                     description="The most affordable way to travel. Our Budget service is safe, dependable, and perfect for travelers looking for great value." 
                     features={['Most Affordable Fares', 'Standard Seating', 'Multiple Stops', 'Reliable Service']}
                     icon={<svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+                />
+                 <ServiceCard 
+                    title="Private Charter" 
+                    description="Need a bus for a special occasion? Hire one for your group event, tour, or corporate outing with a professional driver and flexible scheduling."
+                    features={['Weddings & Events', 'Corporate Outings', 'Tours & Field Trips', 'Customizable Itinerary']}
+                    icon={<svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.282-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.282.356-1.857m0 0a3.001 3.001 0 015.658 0M9 9a3 3 0 11-6 0 3 3 0 016 0zm12 0a3 3 0 11-6 0 3 3 0 016 0zM9 9a3 3 0 00-3 3v1h6v-1a3 3 0 00-3-3zm12 0a3 3 0 00-3 3v1h6v-1a3 3 0 00-3-3z" /></svg>}
                 />
             </div>
         </div>
